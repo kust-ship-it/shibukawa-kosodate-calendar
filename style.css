@@ -1,0 +1,215 @@
+:root {
+  --bg: #faf9f7;
+  --card-bg: #ffffff;
+  --text: #2b2b2b;
+  --text-muted: #6b6b6b;
+  --accent: #e8836b;
+  --accent-bg: #fdeee9;
+  --border: #e5e1db;
+  --tab-inactive-bg: #f0ede8;
+  font-size: 16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  line-height: 1.6;
+  padding-bottom: 2rem;
+}
+
+.header {
+  padding: 1.25rem 1rem 0.75rem;
+  text-align: center;
+}
+.header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.3rem;
+}
+.header .lead {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.section {
+  margin-top: 1.5rem;
+}
+.section h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+  border-left: 4px solid var(--accent);
+  padding-left: 0.5rem;
+}
+.section > .lead {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.tab {
+  flex: 1;
+  padding: 0.6rem 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--tab-inactive-bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.legend {
+  background: var(--accent-bg);
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.85rem;
+}
+.legend summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+.legend ul {
+  margin: 0.5rem 0 0.25rem;
+  padding-left: 1.1rem;
+}
+.legend li {
+  margin-bottom: 0.25rem;
+}
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.date-group {
+  margin-bottom: 0.2rem;
+}
+.date-group h3 {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0.8rem 0 0.4rem;
+  font-weight: 600;
+}
+
+.event-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+}
+.event-card .title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.event-card .bell {
+  flex-shrink: 0;
+}
+.event-card .facility {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-top: 0.15rem;
+}
+.event-card .meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+.age-badge {
+  background: var(--accent-bg);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+}
+.source-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.source-paper {
+  color: var(--text-muted);
+}
+
+.empty, .loading {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.facility-type-group {
+  margin-bottom: 1.1rem;
+}
+.facility-type-group h3 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 0.4rem;
+}
+
+.facility-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.facility-card .fname {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.facility-card .support-name {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin-left: 0.3rem;
+}
+.facility-card .programs {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.facility-card .program-row .label {
+  color: var(--text-muted);
+  display: inline-block;
+  width: 5.2em;
+}
+.facility-card .phone {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+}
+.facility-card .phone a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 2rem;
+}

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>渋川子育てカレンダー</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <h1>👶 渋川子育てカレンダー</h1>
+  <p class="lead">渋川市内の子育てイベントを一覧できます</p>
+</header>
+
+<main>
+  <section class="section">
+    <h2>🗓 特別企画カレンダー</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-range="today">今日</button>
+      <button class="tab" data-range="week">今週</button>
+      <button class="tab" data-range="month">今月</button>
+    </div>
+
+    <details class="legend">
+      <summary>見方のご案内</summary>
+      <ul>
+        <li>🔔がついているイベントは事前予約が必要です</li>
+        <li>対象年齢の目安：🍼 0歳中心／👶 0〜2歳中心／🧒 3歳〜就学前中心／🌈 0歳〜就学前まで幅広く対象</li>
+        <li>情報源が📄のものはリンクがなく、紙のおたより等が元になっています</li>
+      </ul>
+    </details>
+
+    <div id="event-list" class="event-list">
+      <p class="loading">読み込み中...</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>実施施設</h2>
+    <p class="lead">特別な企画がなくても、日頃から利用できる施設の一覧です。</p>
+    <div id="facility-groups"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p id="updated-at"></p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
