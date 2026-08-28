@@ -129,6 +129,7 @@ function renderFacilities(facilities) {
       const cards = groups[type]
         .map((f) => {
           const displayName = f.is_paper_source ? `[紙] ${escapeHtml(f.name)}` : escapeHtml(f.name);
+          const subNames = [f.support_name, f.salon_name].filter(Boolean).map(escapeHtml).join(" / ");
           const programs = [
             programRow("ふれあい保育", f.furea_day, f.furea_time),
             programRow("園庭開放", f.sono_day, f.sono_time),
@@ -138,7 +139,7 @@ function renderFacilities(facilities) {
           return `
             <div class="facility-card">
               <span class="fname">${displayName}</span>
-              ${f.support_name ? `<span class="support-name">${escapeHtml(f.support_name)}</span>` : ""}
+              ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
               ${programs ? `<div class="programs">${programs}</div>` : ""}
               ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">📞 ${f.phone}</a></div>` : ""}
             </div>`;

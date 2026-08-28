@@ -125,6 +125,7 @@ def build_facilities(client: Client) -> list[dict]:
                 "name": _title(props),
                 "type": _select(props, "施設種別"),
                 "support_name": _rich_text(props, "子育て支援名称"),
+                "salon_name": _rich_text(props, "子育てサロン名称"),
                 "address": _rich_text(props, "住所"),
                 "phone": _phone(props, "電話番号"),
                 "furea_day": _rich_text(props, "親子ふれあい保育_曜日"),
