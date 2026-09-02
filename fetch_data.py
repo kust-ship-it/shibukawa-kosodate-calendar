@@ -85,6 +85,13 @@ def _phone(props: dict, name: str) -> str:
     return prop["phone_number"] or ""
 
 
+def _number(props: dict, name: str):
+    prop = props.get(name)
+    if not prop or prop["type"] != "number":
+        return None
+    return prop["number"]
+
+
 def build_events(client: Client) -> list[dict]:
     pages = _query_all(client, EVENTS_DATA_SOURCE_ID)
     events = []
@@ -138,6 +145,8 @@ def build_facilities(client: Client) -> list[dict]:
                 "source_url": _url(props, "情報源URL"),
                 "source_type": source_type,
                 "is_paper_source": source_type == "紙媒体",
+                "lat": _number(props, "緯度"),
+                "lng": _number(props, "経度"),
             }
         )
     facilities.sort(key=lambda f: (f["type"] or "", f["name"]))

@@ -115,6 +115,45 @@ function programRow(label, day, time) {
   return `<div class="program-row"><span class="label">${label}</span>${escapeHtml(day)} ${escapeHtml(time)}</div>`;
 }
 
+const TYPE_COLOR = {
+  "私立": "#e8836b",
+  "公立": "#4a90a4",
+  "公民館": "#f0a500",
+  "支援センター": "#8e44ad",
+};
+
+function renderMap(facilities) {
+  const el = document.getElementById("facility-map");
+  const points = facilities.filter((f) => typeof f.lat === "number" && typeof f.lng === "number");
+  if (points.length === 0 || typeof L === "undefined") {
+    el.style.display = "none";
+    return;
+  }
+
+  const map = L.map(el, { scrollWheelZoom: false });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(map);
+
+  const markers = points.map((f) => {
+    const color = TYPE_COLOR[f.type] || "#888";
+    const marker = L.circleMarker([f.lat, f.lng], {
+      radius: 8,
+      color,
+      fillColor: color,
+      fillOpacity: 0.85,
+      weight: 2,
+    }).addTo(map);
+    const phone = f.phone ? `<br>📞 ${escapeHtml(f.phone)}` : "";
+    marker.bindPopup(`<b>${escapeHtml(f.name)}</b>${escapeHtml(f.type || "")}${phone}`);
+    return marker;
+  });
+
+  const group = L.featureGroup(markers);
+  map.fitBounds(group.getBounds().pad(0.15));
+}
+
 function renderFacilities(facilities) {
   const container = document.getElementById("facility-groups");
   const order = ["私立", "公立", "公民館", "支援センター"];
@@ -160,6 +199,7 @@ async function main() {
 
   let currentRange = "today";
   renderEvents(data.events, currentRange);
+  renderMap(data.facilities);
   renderFacilities(data.facilities);
 
   document.querySelectorAll(".tab").forEach((btn) => {

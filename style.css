@@ -161,6 +161,21 @@ main {
   padding: 1.5rem 0;
 }
 
+#facility-map {
+  height: 260px;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+.leaflet-popup-content {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.leaflet-popup-content b {
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
 .facility-type-group {
   margin-bottom: 1.1rem;
 }
