@@ -198,6 +198,11 @@ main {
   font-size: 0.78rem;
   margin-left: 0.3rem;
 }
+.facility-card .address {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
 .facility-card .programs {
   margin-top: 0.4rem;
   font-size: 0.82rem;
@@ -217,6 +222,19 @@ main {
 .facility-card .phone a {
   color: var(--accent);
   text-decoration: none;
+}
+.facility-card .source {
+  margin-top: 0.3rem;
+  font-size: 0.82rem;
+}
+.facility-card .source a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.facility-card .source-note {
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
 }
 
 .footer {

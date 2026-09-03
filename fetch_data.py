@@ -140,6 +140,7 @@ def build_facilities(client: Client) -> list[dict]:
                 "sodan_time": _rich_text(props, "育児相談_時間"),
                 "koala_day": _rich_text(props, "こあらクラブ_曜日"),
                 "source_url": _url(props, "情報源URL"),
+                "source_type": _select(props, "情報源種別"),
                 "lat": _number(props, "緯度"),
                 "lng": _number(props, "経度"),
             }

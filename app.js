@@ -174,12 +174,20 @@ function renderFacilities(facilities) {
             programRow("育児相談", f.sodan_day, f.sodan_time),
             programRow("こあらクラブ", f.koala_day, ""),
           ].join("");
+          const sourceInfo =
+            f.source_type === "Web" && f.source_url
+              ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">🔗 詳しくはこちら</a></div>`
+              : f.source_type === "紙媒体"
+                ? `<div class="source-note">情報をお持ちの方はお知らせください</div>`
+                : "";
           return `
             <div class="facility-card">
               <span class="fname">${displayName}</span>
               ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
+              ${f.address ? `<div class="address">📍 ${escapeHtml(f.address)}</div>` : ""}
               ${programs ? `<div class="programs">${programs}</div>` : ""}
               ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">📞 ${f.phone}</a></div>` : ""}
+              ${sourceInfo}
             </div>`;
         })
         .join("");
