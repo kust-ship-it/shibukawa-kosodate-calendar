@@ -1,0 +1,28 @@
+name: Sync new events from facility sources
+
+on:
+  schedule:
+    # JST 9:00（毎月10日・20日・30日）に相当（UTC基準）
+    - cron: "0 0 10,20,30 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Sync new events into Notion (未確認として仮登録)
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: python sync_events.py --apply

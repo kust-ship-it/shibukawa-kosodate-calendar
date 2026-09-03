@@ -101,6 +101,8 @@ def build_events(client: Client) -> list[dict]:
         date_prop = props.get("日付", {}).get("date")
         if not date_prop or not date_prop.get("start"):
             continue  # 日付未設定のテンプレート的レコードは除外
+        if _select(props, "確認状況") != "確認済み":
+            continue  # 自動登録の未確認イベントは人がレビューするまで非公開
         reservation_required = title.startswith("🔔")
         display_title = title[1:].strip() if reservation_required else title
         age = _select(props, "対象年齢")
@@ -114,7 +116,6 @@ def build_events(client: Client) -> list[dict]:
                 "age": age,
                 "memo": _rich_text(props, "メモ"),
                 "source": _rich_text(props, "情報源"),
-                "confirmed": _select(props, "確認状況") == "確認済み",
             }
         )
     events.sort(key=lambda e: e["date"])
