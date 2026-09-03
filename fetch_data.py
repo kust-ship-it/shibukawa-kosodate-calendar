@@ -103,13 +103,10 @@ def build_events(client: Client) -> list[dict]:
             continue  # 日付未設定のテンプレート的レコードは除外
         if _select(props, "確認状況") != "確認済み":
             continue  # 自動登録の未確認イベントは人がレビューするまで非公開
-        reservation_required = title.startswith("🔔")
-        display_title = title[1:].strip() if reservation_required else title
         age = _select(props, "対象年齢")
         events.append(
             {
-                "title": display_title,
-                "reservation_required": reservation_required,
+                "title": title,
                 "date": date_prop["start"][:10],
                 "facility_name": _rich_text(props, "施設名"),
                 "category": _select(props, "種別"),

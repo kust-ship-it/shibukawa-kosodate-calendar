@@ -90,7 +90,6 @@ function renderEvents(events, rangeKind) {
           (e) => `
         <div class="event-card">
           <div class="title-row">
-            ${e.reservation_required ? '<span class="bell">🔔</span>' : ""}
             <span>${escapeHtml(e.title)}</span>
           </div>
           ${e.facility_name ? `<div class="facility">${escapeHtml(e.facility_name)}</div>` : ""}

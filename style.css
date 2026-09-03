@@ -125,9 +125,6 @@ main {
   font-weight: 600;
   font-size: 0.95rem;
 }
-.event-card .bell {
-  flex-shrink: 0;
-}
 .event-card .facility {
   color: var(--text-muted);
   font-size: 0.82rem;
