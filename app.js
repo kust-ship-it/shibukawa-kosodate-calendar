@@ -166,7 +166,7 @@ function renderFacilities(facilities) {
     .map((type) => {
       const cards = groups[type]
         .map((f) => {
-          const displayName = f.is_paper_source ? `[紙] ${escapeHtml(f.name)}` : escapeHtml(f.name);
+          const displayName = escapeHtml(f.name);
           const subNames = [f.support_name, f.salon_name].filter(Boolean).map(escapeHtml).join(" / ");
           const programs = [
             programRow("ふれあい保育", f.furea_day, f.furea_time),
