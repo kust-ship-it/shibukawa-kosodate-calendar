@@ -19,6 +19,7 @@ import re
 import sys
 import unicodedata
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 import pdfplumber
 import requests
@@ -26,6 +27,8 @@ from dotenv import load_dotenv
 from notion_client import Client
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+JST = timezone(timedelta(hours=9))
 
 LIST_PAGE_URL = "https://www.city.shibukawa.lg.jp/kosodate-site/kosodate/000454/000456/p015023.html"
 EVENTS_DATA_SOURCE_ID = "8c2569b7-c5ed-4613-8625-005f7c28f7ba"  # 子育てイベント一覧
@@ -218,6 +221,22 @@ def create_event_page(client: Client, event: SalonEvent) -> None:
     )
 
 
+def update_facility_flags(client: Client, new_events: list[SalonEvent]) -> None:
+    """直近の巡回で新規登録があった施設だけ「自動登録あり」をONにし、他はOFFにリセットする。
+
+    施設マスタを見れば「今回の巡回（10日/20日/30日）でどの施設が更新されたか」が
+    一目でわかるようにするための表示専用フラグ。
+    """
+    hit_facility_ids = {e.facility_page_id for e in new_events}
+    today = datetime.now(JST).date().isoformat()
+    for facility_page_id, _facility_name in DISTRICT_TO_FACILITY.values():
+        has_new = facility_page_id in hit_facility_ids
+        properties = {"自動登録あり（直近巡回）": {"checkbox": has_new}}
+        if has_new:
+            properties["最終自動登録日"] = {"date": {"start": today}}
+        client.pages.update(page_id=facility_page_id, properties=properties)
+
+
 def sync_new_events(apply: bool) -> None:
     parsed = fetch_and_parse_all()
     client = _client()
@@ -230,17 +249,18 @@ def sync_new_events(apply: bool) -> None:
     for e in sorted(new_events, key=lambda x: x.date):
         print(f"{'[追加]' if apply else '[新規・未登録]'} {e.date}  [{e.district}]  {e.name}")
 
-    if not new_events:
-        print("\n新規イベントはありません。")
-        return
-
     if not apply:
-        print("\n実際にNotionへ書き込むには --apply を付けて実行してください。")
+        print("\n新規イベントはありません。" if not new_events else "\n実際にNotionへ書き込むには --apply を付けて実行してください。")
         return
 
     for e in new_events:
         create_event_page(client, e)
-    print(f"\n{len(new_events)}件を「確認状況＝未確認」でNotionに登録しました。公開サイトには反映されません。Notion側で内容を確認し「確認済み」に変更してください。")
+    update_facility_flags(client, new_events)
+
+    if new_events:
+        print(f"\n{len(new_events)}件を「確認状況＝未確認」でNotionに登録しました。公開サイトには反映されません。Notion側で内容を確認し「確認済み」に変更してください。")
+    else:
+        print("\n新規イベントはありません。施設マスタの「自動登録あり」フラグをリセットしました。")
 
 
 if __name__ == "__main__":
