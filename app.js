@@ -178,7 +178,7 @@ function renderFacilities(facilities) {
             f.source_type === "Web" && f.source_url
               ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">🔗 詳しくはこちら</a></div>`
               : f.source_type === "紙媒体"
-                ? `<div class="source-note">情報をお持ちの方はお知らせください</div>`
+                ? `<div class="source-note">Web上に情報はありません。ご存じの方はお知らせください</div>`
                 : "";
           return `
             <div class="facility-card">
