@@ -61,19 +61,31 @@ function escapeHtml(s) {
   }[c]));
 }
 
+const AGE_LABELS = {
+  "🍼 0歳中心": "0歳中心",
+  "👶 0〜2歳中心": "0〜2歳",
+  "🧒 3歳〜就学前中心": "3歳〜就学前",
+  "🌈 0歳〜就学前まで幅広く": "0歳〜就学前（幅広く対象）",
+};
+
 function ageBadge(age) {
   if (!age) return "";
-  const emoji = age.split(" ")[0];
-  return `<span class="age-badge" title="${escapeHtml(age)}">${emoji}</span>`;
+  const label = AGE_LABELS[age] || age;
+  return `<span class="age-badge">${escapeHtml(label)}</span>`;
 }
 
-function renderEvents(events, rangeKind) {
+function renderEvents(events, rangeKind, filters) {
   const container = document.getElementById("event-list");
   const range = rangeFor(rangeKind);
-  const filtered = events.filter((e) => inRange(e.date, range));
+  const filtered = events.filter(
+    (e) =>
+      inRange(e.date, range) &&
+      (!filters.facility || e.facility_name === filters.facility) &&
+      (!filters.age || e.age === filters.age)
+  );
 
   if (filtered.length === 0) {
-    container.innerHTML = `<p class="empty">この期間に登録されている特別企画はありません。</p>`;
+    container.innerHTML = `<p class="empty">この条件で登録されている特別企画はありません。</p>`;
     return;
   }
 
@@ -200,21 +212,49 @@ function renderFacilities(facilities) {
     .join("");
 }
 
+function populateFacilityFilter(events) {
+  const select = document.getElementById("facility-filter");
+  const names = [...new Set(events.map((e) => e.facility_name).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, "ja")
+  );
+  select.innerHTML =
+    `<option value="">すべての施設</option>` +
+    names.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
+}
+
 async function main() {
   const res = await fetch("data.json", { cache: "no-store" });
   const data = await res.json();
 
-  let currentRange = "today";
-  renderEvents(data.events, currentRange);
+  const state = { range: "today", facility: "", age: "" };
+  const rerender = () => renderEvents(data.events, state.range, { facility: state.facility, age: state.age });
+
+  rerender();
   renderMap(data.facilities);
   renderFacilities(data.facilities);
+  populateFacilityFilter(data.events);
 
   document.querySelectorAll(".tab").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab").forEach((b) => b.classList.remove("is-active"));
       btn.classList.add("is-active");
-      currentRange = btn.dataset.range;
-      renderEvents(data.events, currentRange);
+      state.range = btn.dataset.range;
+      rerender();
+    });
+  });
+
+  document.getElementById("facility-filter").addEventListener("change", (e) => {
+    state.facility = e.target.value;
+    rerender();
+  });
+
+  document.querySelectorAll(".age-filter-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const isActive = btn.classList.contains("is-active");
+      document.querySelectorAll(".age-filter-btn").forEach((b) => b.classList.remove("is-active"));
+      state.age = isActive ? "" : btn.dataset.age;
+      if (!isActive) btn.classList.add("is-active");
+      rerender();
     });
   });
 

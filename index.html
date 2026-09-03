@@ -23,10 +23,22 @@
       <button class="tab" data-range="month">今月</button>
     </div>
 
+    <div class="filters">
+      <select id="facility-filter" class="facility-filter" aria-label="施設で絞り込む">
+        <option value="">すべての施設</option>
+      </select>
+      <div class="age-filters" role="group" aria-label="対象年齢で絞り込む">
+        <button class="age-filter-btn" data-age="🍼 0歳中心">0歳中心</button>
+        <button class="age-filter-btn" data-age="👶 0〜2歳中心">0〜2歳</button>
+        <button class="age-filter-btn" data-age="🧒 3歳〜就学前中心">3歳〜就学前</button>
+        <button class="age-filter-btn" data-age="🌈 0歳〜就学前まで幅広く">0歳〜就学前（幅広く対象）</button>
+      </div>
+    </div>
+
     <details class="legend">
       <summary>見方のご案内</summary>
       <ul>
-        <li>対象年齢の目安：🍼 0歳中心／👶 0〜2歳中心／🧒 3歳〜就学前中心／🌈 0歳〜就学前まで幅広く対象</li>
+        <li>対象年齢の目安：0歳中心／0〜2歳／3歳〜就学前／0歳〜就学前（幅広く対象）</li>
         <li>情報源が📄のものはリンクがなく、紙のおたより等が元になっています</li>
       </ul>
     </details>
