@@ -271,6 +271,18 @@ main {
   color: var(--text-muted);
   font-size: 0.78rem;
 }
+.facility-card .community-tip {
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.5rem;
+  background: var(--accent-bg);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+.facility-card .community-tip a {
+  color: var(--accent);
+  text-decoration: none;
+}
 
 .footer {
   text-align: center;

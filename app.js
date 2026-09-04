@@ -186,10 +186,19 @@ function renderFacilities(facilities) {
             programRow("育児相談", f.sodan_day, f.sodan_time),
             programRow("こあらクラブ", f.koala_day, ""),
           ].join("");
+          const communityTips = (f.community_tips || [])
+            .map(
+              (t) => `
+                <div class="community-tip">
+                  📢 ${escapeHtml(t.info)}
+                  ${t.photo_url ? ` <a href="${escapeHtml(t.photo_url)}" target="_blank" rel="noopener">📷写真</a>` : ""}
+                </div>`
+            )
+            .join("");
           const sourceInfo =
             f.source_type === "Web" && f.source_url
               ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">🔗 詳しくはこちら</a></div>`
-              : f.source_type === "紙媒体"
+              : f.source_type === "紙媒体" && !communityTips
                 ? `<div class="source-note">Web上に情報はありません。ご存じの方はお知らせください</div>`
                 : "";
           return `
@@ -200,6 +209,7 @@ function renderFacilities(facilities) {
               ${programs ? `<div class="programs">${programs}</div>` : ""}
               ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">📞 ${f.phone}</a></div>` : ""}
               ${sourceInfo}
+              ${communityTips}
             </div>`;
         })
         .join("");

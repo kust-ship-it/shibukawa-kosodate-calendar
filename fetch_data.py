@@ -17,6 +17,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 EVENTS_DATA_SOURCE_ID = "8c2569b7-c5ed-4613-8625-005f7c28f7ba"
 FACILITIES_DATA_SOURCE_ID = "869e3a2d-a9b9-4401-a948-f106eb9e4a55"
+FACILITY_TIPS_DATA_SOURCE_ID = "1ce82fc4-550e-428c-9ad5-9f3ebe8e5330"
 JST = timezone(timedelta(hours=9))
 
 
@@ -149,6 +150,28 @@ def build_facilities(client: Client) -> list[dict]:
     return facilities
 
 
+def build_facility_tips(client: Client) -> dict[str, list[dict]]:
+    """「施設情報提供」フォームの投稿のうち、レビュー状況＝反映済みのものだけを
+    対象施設名ごとにまとめる。連絡先は運営者だけが見る情報なので公開データには含めない。
+    """
+    pages = _query_all(client, FACILITY_TIPS_DATA_SOURCE_ID)
+    tips: dict[str, list[dict]] = {}
+    for page in pages:
+        props = page["properties"]
+        if _select(props, "レビュー状況") != "反映済み":
+            continue
+        facility_name = _title(props)
+        if not facility_name:
+            continue
+        tips.setdefault(facility_name, []).append(
+            {
+                "info": _rich_text(props, "提供情報"),
+                "photo_url": _url(props, "写真URL"),
+            }
+        )
+    return tips
+
+
 def main() -> None:
     client = _client()
     print("イベントを取得中...")
@@ -157,6 +180,11 @@ def main() -> None:
     print("施設マスタを取得中...")
     facilities = build_facilities(client)
     print(f"  {len(facilities)}件")
+    print("施設情報提供（反映済み）を取得中...")
+    tips = build_facility_tips(client)
+    for f in facilities:
+        f["community_tips"] = tips.get(f["name"], [])
+    print(f"  {sum(len(v) for v in tips.values())}件")
 
     data = {
         "generated_at": datetime.now(JST).isoformat(),
