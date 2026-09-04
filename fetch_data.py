@@ -18,6 +18,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 EVENTS_DATA_SOURCE_ID = "8c2569b7-c5ed-4613-8625-005f7c28f7ba"
 FACILITIES_DATA_SOURCE_ID = "869e3a2d-a9b9-4401-a948-f106eb9e4a55"
 FACILITY_TIPS_DATA_SOURCE_ID = "1ce82fc4-550e-428c-9ad5-9f3ebe8e5330"
+COMMUNITY_EVENTS_DATA_SOURCE_ID = "2aa1ec50-6857-4287-bfba-c68f22e45609"
 JST = timezone(timedelta(hours=9))
 
 
@@ -114,9 +115,43 @@ def build_events(client: Client) -> list[dict]:
                 "age": age,
                 "memo": _rich_text(props, "メモ"),
                 "source": _rich_text(props, "情報源"),
+                "badge": "子育て支援",
             }
         )
     events.sort(key=lambda e: e["date"])
+    return events
+
+
+def build_community_events(client: Client) -> list[dict]:
+    """主催者向け投稿フォーム経由のイベントのうち、レビュー状況＝承認済み・
+    掲載種別＝イベントのものだけを公開用に整形する。お店情報は対象外
+    （日付を持たずカレンダーに乗せられないため、別途の反映方法を検討中）。
+    """
+    pages = _query_all(client, COMMUNITY_EVENTS_DATA_SOURCE_ID)
+    events = []
+    for page in pages:
+        props = page["properties"]
+        if _select(props, "レビュー状況") != "承認済み":
+            continue
+        if _select(props, "掲載種別") != "イベント":
+            continue
+        date_prop = props.get("日付", {}).get("date")
+        if not date_prop or not date_prop.get("start"):
+            continue  # 開催日未記入のイベントはカレンダーに出せないため除外
+        events.append(
+            {
+                "title": _title(props),
+                "date": date_prop["start"][:10],
+                "facility_name": "",
+                "organizer": _rich_text(props, "主催者・店舗名"),
+                "location": _rich_text(props, "開催場所"),
+                "category": "",
+                "age": "",
+                "memo": _rich_text(props, "詳細"),
+                "source": _rich_text(props, "連絡先・SNS"),
+                "badge": "イベント",
+            }
+        )
     return events
 
 
@@ -177,6 +212,11 @@ def main() -> None:
     print("イベントを取得中...")
     events = build_events(client)
     print(f"  {len(events)}件")
+    print("地域イベント（承認済み）を取得中...")
+    community_events = build_community_events(client)
+    events.extend(community_events)
+    events.sort(key=lambda e: e["date"])
+    print(f"  {len(community_events)}件")
     print("施設マスタを取得中...")
     facilities = build_facilities(client)
     print(f"  {len(facilities)}件")

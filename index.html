@@ -11,12 +11,17 @@
 <body>
 <header class="header">
   <h1>👶 渋川子育てカレンダー</h1>
-  <p class="lead">渋川市内の子育てイベントを一覧できます</p>
+  <p class="lead">渋川市内の子育て支援施設の情報やイベントを一覧できます</p>
 </header>
 
 <main>
   <section class="section">
     <h2>🗓 特別企画カレンダー</h2>
+    <div class="mode-switch" role="group" aria-label="表示の切り替え">
+      <button class="mode-btn is-active" data-mode="all">すべて</button>
+      <button class="mode-btn" data-mode="favorite">お気に入り</button>
+      <button class="mode-btn" data-mode="event">イベント</button>
+    </div>
     <div class="tabs" role="tablist">
       <button class="tab is-active" data-range="today">今日</button>
       <button class="tab" data-range="week">今週</button>
@@ -38,8 +43,10 @@
     <details class="legend">
       <summary>見方のご案内</summary>
       <ul>
+        <li>「子育て支援」：施設が行う活動（特別企画も含む）／「イベント」：主催者・お店からの投稿</li>
         <li>対象年齢の目安：0歳中心／0〜2歳／3歳〜就学前／0歳〜就学前（幅広く対象）</li>
         <li>情報源が📄のものはリンクがなく、紙のおたより等が元になっています</li>
+        <li>施設カードの☆をタップすると「お気に入り」に登録できます（この端末だけに保存されます）</li>
       </ul>
     </details>
 

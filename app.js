@@ -61,6 +61,43 @@ function escapeHtml(s) {
   }[c]));
 }
 
+const FAVORITES_KEY = "shibukawa_kosodate_favorite_facilities";
+
+function getFavorites() {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function isFavorite(name) {
+  return getFavorites().includes(name);
+}
+
+function toggleFavorite(name) {
+  const favs = getFavorites();
+  const idx = favs.indexOf(name);
+  if (idx >= 0) {
+    favs.splice(idx, 1);
+  } else {
+    favs.push(name);
+  }
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
+}
+
+const BADGE_CLASS = {
+  "子育て支援": "badge-official",
+  "イベント": "badge-community",
+};
+
+function categoryBadge(badge) {
+  if (!badge) return "";
+  const cls = BADGE_CLASS[badge] || "";
+  return `<span class="category-badge ${cls}">${escapeHtml(badge)}</span>`;
+}
+
 const AGE_LABELS = {
   "🍼 0歳中心": "0歳中心",
   "👶 0〜2歳中心": "0〜2歳",
@@ -77,12 +114,19 @@ function ageBadge(age) {
 function renderEvents(events, rangeKind, filters) {
   const container = document.getElementById("event-list");
   const range = rangeFor(rangeKind);
-  const filtered = events.filter(
-    (e) =>
-      inRange(e.date, range) &&
-      (!filters.facility || e.facility_name === filters.facility) &&
-      (!filters.age || e.age === filters.age)
-  );
+  const favorites = getFavorites();
+  const filtered = events.filter((e) => {
+    if (!inRange(e.date, range)) return false;
+    if (filters.facility && e.facility_name !== filters.facility) return false;
+    if (filters.age && e.age !== filters.age) return false;
+    if (filters.mode === "favorite") {
+      return e.badge === "子育て支援" && favorites.includes(e.facility_name);
+    }
+    if (filters.mode === "event") {
+      return e.badge === "イベント";
+    }
+    return true;
+  });
 
   if (filtered.length === 0) {
     container.innerHTML = `<p class="empty">この条件で登録されている特別企画はありません。</p>`;
@@ -98,19 +142,24 @@ function renderEvents(events, rangeKind, filters) {
   container.innerHTML = dates
     .map((date) => {
       const items = byDate[date]
-        .map(
-          (e) => `
+        .map((e) => {
+          const placeLine =
+            e.badge === "イベント"
+              ? [e.organizer, e.location].filter(Boolean).map(escapeHtml).join(" ／ ")
+              : escapeHtml(e.facility_name);
+          return `
         <div class="event-card">
           <div class="title-row">
+            ${categoryBadge(e.badge)}
             <span>${escapeHtml(e.title)}</span>
           </div>
-          ${e.facility_name ? `<div class="facility">${escapeHtml(e.facility_name)}</div>` : ""}
+          ${placeLine ? `<div class="facility">${placeLine}</div>` : ""}
           <div class="meta-row">
             ${ageBadge(e.age)}
             ${renderSource(e.source)}
           </div>
-        </div>`
-        )
+        </div>`;
+        })
         .join("");
       return `
         <div class="date-group">
@@ -201,8 +250,10 @@ function renderFacilities(facilities) {
               : f.source_type === "紙媒体" && !communityTips
                 ? `<div class="source-note">Web上に情報はありません。ご存じの方はお知らせください</div>`
                 : "";
+          const fav = isFavorite(f.name);
           return `
             <div class="facility-card">
+              <button type="button" class="favorite-btn${fav ? " is-active" : ""}" data-facility="${escapeHtml(f.name)}" aria-label="お気に入り登録">${fav ? "★" : "☆"}</button>
               <span class="fname">${displayName}</span>
               ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
               ${f.address ? `<div class="address">📍 ${escapeHtml(f.address)}</div>` : ""}
@@ -236,8 +287,13 @@ async function main() {
   const res = await fetch("data.json", { cache: "no-store" });
   const data = await res.json();
 
-  const state = { range: "today", facility: "", age: "" };
-  const rerender = () => renderEvents(data.events, state.range, { facility: state.facility, age: state.age });
+  const state = { range: "today", facility: "", age: "", mode: "all" };
+  const rerender = () =>
+    renderEvents(data.events, state.range, {
+      facility: state.facility,
+      age: state.age,
+      mode: state.mode,
+    });
 
   rerender();
   renderMap(data.facilities);
@@ -249,6 +305,15 @@ async function main() {
       document.querySelectorAll(".tab").forEach((b) => b.classList.remove("is-active"));
       btn.classList.add("is-active");
       state.range = btn.dataset.range;
+      rerender();
+    });
+  });
+
+  document.querySelectorAll(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      state.mode = btn.dataset.mode;
       rerender();
     });
   });
@@ -266,6 +331,17 @@ async function main() {
       if (!isActive) btn.classList.add("is-active");
       rerender();
     });
+  });
+
+  document.getElementById("facility-groups").addEventListener("click", (e) => {
+    const btn = e.target.closest(".favorite-btn");
+    if (!btn) return;
+    const name = btn.dataset.facility;
+    toggleFavorite(name);
+    const fav = isFavorite(name);
+    btn.classList.toggle("is-active", fav);
+    btn.textContent = fav ? "★" : "☆";
+    if (state.mode === "favorite") rerender();
   });
 
   const updatedAt = new Date(data.generated_at);
