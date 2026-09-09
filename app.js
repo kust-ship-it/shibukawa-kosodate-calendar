@@ -142,13 +142,14 @@ function facilityOpenWeekdays(f) {
   return days;
 }
 
-// その日すでにカード表示されている施設は「ほかに開いている場所」に重複表示しない
-// （施設名テキストは「施設名（子育て支援名称）」の合成表記のことがあるため部分一致で判定）
-function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityNames) {
+// その日すでにカード表示されている施設は「ほかに開いている場所」に重複表示しない。
+// カレンダー側イベントの「施設」relation IDと施設マスタのページIDを直接比較する
+// （施設名テキストの部分一致には頼らない）。
+function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityIds) {
   const weekday = WEEKDAY_JA[dateFromStr(dateStr).getDay()];
   return facilities
     .filter((f) => facilityOpenWeekdays(f).has(weekday))
-    .filter((f) => !dayOfficialFacilityNames.some((name) => name && name.includes(f.name)))
+    .filter((f) => !dayOfficialFacilityIds.has(f.id))
     .sort((a, b) => a.name.localeCompare(b.name, "ja"));
 }
 
@@ -201,8 +202,10 @@ function renderEvents(events, facilities, rangeKind, filters) {
     while (cursor <= end) {
       const date = toIsoDate(cursor);
       const dayEvents = byDate[date] || [];
-      const officialNames = dayEvents.filter((e) => e.badge === "子育て支援").map((e) => e.facility_name);
-      const openFacilities = facilitiesOpenOn(date, facilities, officialNames);
+      const officialIds = new Set(
+        dayEvents.filter((e) => e.badge === "子育て支援" && e.facility_id).map((e) => e.facility_id)
+      );
+      const openFacilities = facilitiesOpenOn(date, facilities, officialIds);
       if (dayEvents.length > 0 || openFacilities.length > 0) {
         entries.push({ date, dayEvents, openFacilities });
       }
@@ -250,7 +253,7 @@ function eventRow(e) {
     <div class="event-row">
       <div class="event-row-main">
         <span class="event-dot ${dotClass}" aria-hidden="true"></span>
-        <span class="event-label" style="color:${labelColor}">${escapeHtml(e.badge)}</span>
+        <span class="event-label" style="color:${labelColor}">${escapeHtml(e.label || e.badge)}</span>
         <span class="event-title hw" style="color:${titleColor}">${escapeHtml(e.title)}</span>
       </div>
       ${

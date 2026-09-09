@@ -113,17 +113,23 @@ def build_events(client: Client, facility_types_by_id: dict[str, str] | None = N
         facility_relation = (props.get("施設") or {}).get("relation") or []
         facility_id = facility_relation[0]["id"] if facility_relation else None
         facility_type = facility_types_by_id.get(facility_id, "") if facility_id else ""
+        category = _select(props, "種別")
+        # 公民館の「子育てサロン」は民生委員児童委員協議会等が主催する公的な子育て支援活動で、
+        # 施設が主催する他の「子育て支援」種別（こあらクラブ等）とは呼び分ける。色は変えない。
+        label = "子育てサロン" if category == "サロン(乳幼児対象)" else "子育て支援"
         events.append(
             {
                 "title": title,
                 "date": date_prop["start"][:10],
                 "facility_name": facility_name,
+                "facility_id": facility_id,
                 "facility_type": facility_type,
-                "category": _select(props, "種別"),
+                "category": category,
                 "age": age,
                 "memo": _rich_text(props, "メモ"),
                 "source": _rich_text(props, "情報源"),
                 "badge": "子育て支援",
+                "label": label,
             }
         )
     events.sort(key=lambda e: e["date"])
@@ -151,6 +157,7 @@ def build_community_events(client: Client) -> list[dict]:
                 "title": _title(props),
                 "date": date_prop["start"][:10],
                 "facility_name": "",
+                "facility_id": None,
                 "organizer": _rich_text(props, "主催者・店舗名"),
                 "location": _rich_text(props, "開催場所"),
                 "category": "",
@@ -158,6 +165,7 @@ def build_community_events(client: Client) -> list[dict]:
                 "memo": _rich_text(props, "詳細"),
                 "source": _rich_text(props, "連絡先・SNS"),
                 "badge": "イベント",
+                "label": "イベント",
             }
         )
     return events
@@ -176,6 +184,7 @@ def build_facilities(client: Client) -> list[dict]:
         props = page["properties"]
         facilities.append(
             {
+                "id": page["id"],
                 "name": _title(props),
                 "type": _select(props, "施設種別"),
                 "support_name": _rich_text(props, "子育て支援名称"),
