@@ -4,16 +4,19 @@ const WEEKDAY_JA = ["日", "月", "火", "水", "木", "金", "土"];
 
 function todayStr() {
   // ブラウザのローカル時刻をそのまま使う（想定利用者は日本国内）
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return toIsoDate(new Date());
 }
 
 function dateFromStr(s) {
   const [y, m, d] = s.split("-").map(Number);
   return new Date(y, m - 1, d);
+}
+
+function toIsoDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function formatDateLabel(s) {
@@ -107,7 +110,64 @@ function ageBadge(age) {
   return `<span class="age-badge">${escapeHtml(label)}</span>`;
 }
 
-function renderEvents(events, rangeKind, filters) {
+// 施設マスタの「◯曜」「◯・◯」「◯〜◯」表記の曜日データを、実際の曜日集合に変換する。
+// （こあらクラブは個別イベントとして日付ごとに登録済みのため、ここでは対象にしない）
+const WEEKDAY_RANGE_ORDER = ["月", "火", "水", "木", "金", "土", "日"];
+
+function parseWeekdaySet(str) {
+  const days = new Set();
+  if (!str) return days;
+  const cleaned = str.replace(/曜/g, "");
+  for (const part of cleaned.split("・")) {
+    if (!part) continue;
+    if (part.includes("〜")) {
+      const [from, to] = part.split("〜");
+      const fromIdx = WEEKDAY_RANGE_ORDER.indexOf(from);
+      const toIdx = WEEKDAY_RANGE_ORDER.indexOf(to);
+      if (fromIdx >= 0 && toIdx >= 0) {
+        for (let i = fromIdx; i <= toIdx; i++) days.add(WEEKDAY_RANGE_ORDER[i]);
+      }
+    } else if (WEEKDAY_RANGE_ORDER.includes(part)) {
+      days.add(part);
+    }
+  }
+  return days;
+}
+
+function facilityOpenWeekdays(f) {
+  const days = new Set();
+  for (const raw of [f.furea_day, f.sono_day, f.sodan_day]) {
+    for (const d of parseWeekdaySet(raw)) days.add(d);
+  }
+  return days;
+}
+
+// その日すでにカード表示されている施設は「ほかに開いている場所」に重複表示しない
+// （施設名テキストは「施設名（子育て支援名称）」の合成表記のことがあるため部分一致で判定）
+function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityNames) {
+  const weekday = WEEKDAY_JA[dateFromStr(dateStr).getDay()];
+  return facilities
+    .filter((f) => facilityOpenWeekdays(f).has(weekday))
+    .filter((f) => !dayOfficialFacilityNames.some((name) => name && name.includes(f.name)))
+    .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+}
+
+function openFacilitiesRow(list, hasEventsAbove) {
+  if (list.length === 0) return "";
+  const chips = list
+    .map((f) => {
+      const cls = FACILITY_GROUP_BADGE_CLASS[facilityGroupFor(f.type)];
+      return `<button type="button" class="open-facility-chip type-badge ${cls}" data-facility="${escapeHtml(f.name)}">${escapeHtml(f.name)}</button>`;
+    })
+    .join("");
+  return `
+    <div class="open-facilities${hasEventsAbove ? " has-events-above" : ""}">
+      <span class="open-facilities-label">ほかに開いている場所</span>
+      <div class="open-facilities-list">${chips}</div>
+    </div>`;
+}
+
+function renderEvents(events, facilities, rangeKind, filters) {
   const container = document.getElementById("event-list");
   const range = rangeFor(rangeKind);
   const favorites = getFavorites();
@@ -124,26 +184,49 @@ function renderEvents(events, rangeKind, filters) {
     return true;
   });
 
-  if (filtered.length === 0) {
-    container.innerHTML = emptyState();
-    return;
-  }
-
   // 日付ごとに1つの枠でくくり、その日の予定は件数によらず同じ書式で並べる
   // （特定の施設・イベントだけを大きく見せる扱いの差をつけない）。
   const byDate = {};
   for (const e of filtered) {
     (byDate[e.date] ||= []).push(e);
   }
-  const dates = Object.keys(byDate).sort();
 
-  container.innerHTML = dates
-    .map((date) => {
-      const rows = byDate[date].map((e) => eventRow(e)).join("");
+  // 特別企画がない日でも「常時開いている施設」は選択肢に出す（施設フィルタ・地域イベントモード時は対象外）
+  const showOpenFacilities = filters.mode === "all" && !filters.facility;
+
+  const entries = [];
+  if (showOpenFacilities) {
+    const [start, end] = range;
+    const cursor = new Date(start);
+    while (cursor <= end) {
+      const date = toIsoDate(cursor);
+      const dayEvents = byDate[date] || [];
+      const officialNames = dayEvents.filter((e) => e.badge === "子育て支援").map((e) => e.facility_name);
+      const openFacilities = facilitiesOpenOn(date, facilities, officialNames);
+      if (dayEvents.length > 0 || openFacilities.length > 0) {
+        entries.push({ date, dayEvents, openFacilities });
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  } else {
+    for (const date of Object.keys(byDate).sort()) {
+      entries.push({ date, dayEvents: byDate[date], openFacilities: [] });
+    }
+  }
+
+  if (entries.length === 0) {
+    container.innerHTML = emptyState();
+    return;
+  }
+
+  container.innerHTML = entries
+    .map(({ date, dayEvents, openFacilities }) => {
+      const rows = dayEvents.map((e) => eventRow(e)).join("");
       return `
         <div class="date-group">
           <div class="date-group-header">${escapeHtml(formatDateLabel(date))}</div>
-          <div class="date-group-body">${rows}</div>
+          ${rows ? `<div class="date-group-body">${rows}</div>` : ""}
+          ${openFacilitiesRow(openFacilities, Boolean(rows))}
         </div>`;
     })
     .join("");
@@ -281,7 +364,7 @@ function renderFacilities(facilities) {
           const fav = isFavorite(f.name);
           const favLabel = fav ? "お気に入り登録済み" : "お気に入りに追加";
           return `
-            <div class="facility-card">
+            <div class="facility-card" data-facility-name="${escapeHtml(f.name)}">
               <div class="facility-card-body">
                 <div class="facility-head">
                   <div class="facility-head-main">
@@ -326,7 +409,7 @@ async function main() {
 
   const state = { range: "today", facility: "", age: "", mode: "all" };
   const rerender = () =>
-    renderEvents(data.events, state.range, {
+    renderEvents(data.events, data.facilities, state.range, {
       facility: state.facility,
       age: state.age,
       mode: state.mode,
@@ -368,6 +451,21 @@ async function main() {
       if (!isActive) btn.classList.add("is-active");
       rerender();
     });
+  });
+
+  document.getElementById("event-list").addEventListener("click", (e) => {
+    const chip = e.target.closest(".open-facility-chip");
+    if (!chip) return;
+    const card = document.querySelector(
+      `.facility-card[data-facility-name="${CSS.escape(chip.dataset.facility)}"]`
+    );
+    if (!card) return;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.remove("is-highlighted");
+    // 直前にも当てていた場合に再アニメーションさせるため一度リフローを挟む
+    void card.offsetWidth;
+    card.classList.add("is-highlighted");
+    window.setTimeout(() => card.classList.remove("is-highlighted"), 1600);
   });
 
   document.getElementById("facility-groups").addEventListener("click", (e) => {

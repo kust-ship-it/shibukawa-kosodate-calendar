@@ -267,6 +267,35 @@ main {
   color: var(--text);
 }
 
+/* --- 「ほかに開いている場所」：特別企画より明確に控えめな、タップ可能なタウプ帯 --- */
+.open-facilities {
+  padding: 0.55rem 0.9rem 0.7rem;
+}
+.open-facilities.has-events-above {
+  border-top: 1px solid var(--divider);
+}
+.open-facilities-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+.open-facilities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.open-facility-chip {
+  appearance: none;
+  border: none;
+  font-family: sans-serif;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.open-facility-chip::after {
+  content: " ›";
+}
+
 .age-badge {
   background: #ffffff;
   border-radius: 999px;
@@ -355,6 +384,19 @@ main {
   margin-bottom: 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
+}
+.facility-card.is-highlighted {
+  animation: facility-highlight 1.6s ease;
+}
+@keyframes facility-highlight {
+  0% {
+    background: var(--river-pale);
+    border-color: var(--river-deep);
+  }
+  100% {
+    background: transparent;
+    border-color: var(--border);
+  }
 }
 .facility-card-body {
   padding: 12px 16px;
