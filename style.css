@@ -24,11 +24,20 @@
   --accent: var(--river-deep);
   --accent-bg: var(--river-pale);
 
-  /* 施設種別（カレンダーの青/緑とは系統を分けた暖色系グレー） */
-  --taupe-text: #5B5146; /* 3色すべてで4.5:1以上を確保 */
-  --taupe-light: #F5F1EC;  /* 公民館 */
-  --taupe-mid: #E8DFD2;    /* 保育園・幼稚園 */
-  --taupe-dark: #D3C4AE;   /* 支援センター */
+  /* 施設種別（検索/絞り込みチップの選択状態などで使う汎用の暖色系グレー） */
+  --taupe-text: #5B5146;
+  --taupe-light: #F5F1EC;
+  --taupe-mid: #E8DFD2;
+  --taupe-dark: #D3C4AE;
+
+  /* 施設種別ラベル：濃淡の序列ではなく明るさ・彩度を揃えた色相違いにし、
+     どれか一つが強く／重要に見えないようにする（コントラストは3色とも4.5:1以上） */
+  --type-support-bg: #DFE4E3;
+  --type-support-text: #4E6260;
+  --type-childcare-bg: #E8E2D4;
+  --type-childcare-text: #6B6248;
+  --type-community-bg: #EFE4DC;
+  --type-community-text: #7A5A44;
 
   --divider: #e2ded8; /* 日付枠内の区切り線（塗り背景向けの柔らかい線） */
 
@@ -460,23 +469,30 @@ details[open] > .facility-group-summary::after {
   font-family: sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: var(--taupe-text);
   margin: 0 0 0.6rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
 }
 .type-badge.type-support {
-  background: var(--taupe-dark);
+  background: var(--type-support-bg);
+  color: var(--type-support-text);
 }
 .type-badge.type-childcare {
-  background: var(--taupe-mid);
+  background: var(--type-childcare-bg);
+  color: var(--type-childcare-text);
 }
 .type-badge.type-community {
-  background: var(--taupe-light);
+  background: var(--type-community-bg);
+  color: var(--type-community-text);
 }
 .type-badge-inline {
   margin: 0; /* カレンダー行の中でインライン表示する場合は見出し用の下マージンを打ち消す */
   font-size: 14px;
+}
+.type-badge-icon {
+  vertical-align: -2px;
+  margin-right: 4px;
+  flex-shrink: 0;
 }
 
 /* --- 施設カード：塗りなし・直線の輪郭のみ（手描き風演出はタブのみに限定） --- */

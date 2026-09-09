@@ -157,8 +157,9 @@ function openFacilitiesRow(list, hasEventsAbove) {
   if (list.length === 0) return "";
   const chips = list
     .map((f) => {
-      const cls = FACILITY_GROUP_BADGE_CLASS[facilityGroupFor(f.type)];
-      return `<button type="button" class="open-facility-chip type-badge ${cls}" data-facility-id="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>`;
+      const group = facilityGroupFor(f.type);
+      const cls = FACILITY_GROUP_BADGE_CLASS[group];
+      return `<button type="button" class="open-facility-chip type-badge ${cls}" data-facility-id="${escapeHtml(f.id)}">${facilityGroupIcon(group)}${escapeHtml(f.name)}</button>`;
     })
     .join("");
   return `
@@ -243,16 +244,17 @@ function eventRow(e) {
   const placeLine = isOfficial
     ? e.facility_name
     : [e.organizer, e.location].filter(Boolean).join(" ／ ");
-  // 施設一覧と同じロジック・同じ配色（タウプ3階調）を再利用し、二重管理を避ける
+  // 施設一覧と同じロジック・同じ配色を再利用し、二重管理を避ける
   const facilityGroup = isOfficial && e.facility_type ? facilityGroupFor(e.facility_type) : null;
   const placeClass = facilityGroup
     ? `type-badge type-badge-inline ${FACILITY_GROUP_BADGE_CLASS[facilityGroup]}`
     : "event-place";
+  const placeIcon = facilityGroup ? facilityGroupIcon(facilityGroup) : "";
   // 施設が特定できる場合のみ、ラベル自体を「ほかに開いている場所」と同じジャンプ機能のタップ対象にする
   const isJumpable = Boolean(facilityGroup && e.facility_id);
   const placeTag = isJumpable
-    ? `<button type="button" class="${placeClass} facility-jump-chip" data-facility-id="${escapeHtml(e.facility_id)}">${escapeHtml(placeLine)}</button>`
-    : `<span class="${placeClass}">${escapeHtml(placeLine)}</span>`;
+    ? `<button type="button" class="${placeClass} facility-jump-chip" data-facility-id="${escapeHtml(e.facility_id)}">${placeIcon}${escapeHtml(placeLine)}</button>`
+    : `<span class="${placeClass}">${placeIcon}${escapeHtml(placeLine)}</span>`;
   const hasMeta = Boolean(placeLine || e.age || e.source);
   return `
     <div class="event-row">
@@ -329,6 +331,18 @@ const FACILITY_GROUP_BADGE_CLASS = {
 function facilityGroupFor(type) {
   if (type === "支援センター" || type === "公民館") return type;
   return "保育園・幼稚園"; // 私立・公立
+}
+
+// 色だけに頼らず種別を判別できるよう、各ラベルの先頭に添えるアイコン（Tabler Icons outline）。
+// stroke="currentColor"でラベルの文字色を継承する。
+const FACILITY_GROUP_ICON = {
+  "支援センター": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l18 0" /><path d="M9 8l1 0" /><path d="M9 12l1 0" /><path d="M9 16l1 0" /><path d="M14 8l1 0" /><path d="M14 12l1 0" /><path d="M14 16l1 0" /><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" /></svg>`,
+  "保育園・幼稚園": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>`,
+  "公民館": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M21 21v-2a4 4 0 0 0 -3 -3.85" /></svg>`,
+};
+
+function facilityGroupIcon(group) {
+  return FACILITY_GROUP_ICON[group] || "";
 }
 
 function facilityCardHtml(f) {
@@ -413,7 +427,7 @@ function renderFacilities(facilities, filterState) {
       return `
         <details class="facility-type-group" data-group="${type}"${isOpen ? " open" : ""}>
           <summary class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">
-            <span class="facility-group-label">${type}</span>
+            <span class="facility-group-label">${facilityGroupIcon(type)}${type}</span>
             <span class="facility-group-count">${list.length}件</span>
           </summary>
           <div class="facility-group-body">${cards}</div>
