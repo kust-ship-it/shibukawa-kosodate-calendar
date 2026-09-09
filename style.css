@@ -285,7 +285,8 @@ main {
   flex-wrap: wrap;
   gap: 0.4rem;
 }
-.open-facility-chip {
+.open-facility-chip,
+.facility-jump-chip {
   appearance: none;
   border: none;
   font-family: sans-serif;

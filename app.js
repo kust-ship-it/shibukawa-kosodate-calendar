@@ -158,7 +158,7 @@ function openFacilitiesRow(list, hasEventsAbove) {
   const chips = list
     .map((f) => {
       const cls = FACILITY_GROUP_BADGE_CLASS[facilityGroupFor(f.type)];
-      return `<button type="button" class="open-facility-chip type-badge ${cls}" data-facility="${escapeHtml(f.name)}">${escapeHtml(f.name)}</button>`;
+      return `<button type="button" class="open-facility-chip type-badge ${cls}" data-facility-id="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>`;
     })
     .join("");
   return `
@@ -248,6 +248,11 @@ function eventRow(e) {
   const placeClass = facilityGroup
     ? `type-badge type-badge-inline ${FACILITY_GROUP_BADGE_CLASS[facilityGroup]}`
     : "event-place";
+  // 施設が特定できる場合のみ、ラベル自体を「ほかに開いている場所」と同じジャンプ機能のタップ対象にする
+  const isJumpable = Boolean(facilityGroup && e.facility_id);
+  const placeTag = isJumpable
+    ? `<button type="button" class="${placeClass} facility-jump-chip" data-facility-id="${escapeHtml(e.facility_id)}">${escapeHtml(placeLine)}</button>`
+    : `<span class="${placeClass}">${escapeHtml(placeLine)}</span>`;
   const hasMeta = Boolean(placeLine || e.age || e.source);
   return `
     <div class="event-row">
@@ -259,7 +264,7 @@ function eventRow(e) {
       ${
         hasMeta
           ? `<div class="event-row-meta">
-        ${placeLine ? `<span class="${placeClass}">${escapeHtml(placeLine)}</span>` : ""}
+        ${placeLine ? placeTag : ""}
         ${ageBadge(e.age)}
         ${renderSource(e.source)}
       </div>`
@@ -511,35 +516,25 @@ async function main() {
     rerenderFacilities();
   });
 
-  // 「ほかに開いている場所」チップから施設カードへジャンプする。
+  // 「ほかに開いている場所」チップ・特別企画カードの施設ラベルから施設カードへジャンプする共通処理。
+  // 「施設」relationのページIDで対象を特定するため、施設名テキストの合成表記に依存しない。
   // 一覧側のフィルターで対象が隠れていれば解除し、アコーディオンが畳まれていれば開いてからスクロール＋ハイライトする。
-  function jumpToFacility(name) {
-    let filtersChanged = false;
-    if (facilityFilterState.search) {
-      facilityFilterState.search = "";
-      document.getElementById("facility-search").value = "";
-      filtersChanged = true;
-    }
-    if (facilityFilterState.type) {
-      facilityFilterState.type = "";
-      document.querySelectorAll(".facility-type-chip").forEach((b) => b.classList.toggle("is-active", b.dataset.type === ""));
-      filtersChanged = true;
-    }
-    if (facilityFilterState.favoriteOnly) {
-      facilityFilterState.favoriteOnly = false;
-      favoriteToggle.classList.remove("is-active");
-      favoriteToggle.setAttribute("aria-pressed", "false");
-      filtersChanged = true;
-    }
+  function jumpToFacility(facilityId) {
+    const facility = data.facilities.find((f) => f.id === facilityId);
+    if (!facility) return;
 
-    const facility = data.facilities.find((f) => f.name === name);
-    if (facility) {
-      facilityAccordionOpen[facilityGroupFor(facility.type)] = true;
-    }
+    facilityFilterState.search = "";
+    document.getElementById("facility-search").value = "";
+    facilityFilterState.type = "";
+    document.querySelectorAll(".facility-type-chip").forEach((b) => b.classList.toggle("is-active", b.dataset.type === ""));
+    facilityFilterState.favoriteOnly = false;
+    favoriteToggle.classList.remove("is-active");
+    favoriteToggle.setAttribute("aria-pressed", "false");
 
-    if (filtersChanged || facility) rerenderFacilities();
+    facilityAccordionOpen[facilityGroupFor(facility.type)] = true;
+    rerenderFacilities();
 
-    const card = document.querySelector(`.facility-card[data-facility-name="${CSS.escape(name)}"]`);
+    const card = document.querySelector(`.facility-card[data-facility-name="${CSS.escape(facility.name)}"]`);
     if (!card) return;
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.remove("is-highlighted");
@@ -550,9 +545,9 @@ async function main() {
   }
 
   document.getElementById("event-list").addEventListener("click", (e) => {
-    const chip = e.target.closest(".open-facility-chip");
-    if (!chip) return;
-    jumpToFacility(chip.dataset.facility);
+    const target = e.target.closest("[data-facility-id]");
+    if (!target) return;
+    jumpToFacility(target.dataset.facilityId);
   });
 
   document.getElementById("facility-groups").addEventListener("click", (e) => {
