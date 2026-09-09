@@ -87,43 +87,6 @@ function toggleFavorite(name) {
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
 }
 
-const BADGE_CLASS = {
-  "子育て支援": "badge-official",
-  "イベント": "badge-community",
-};
-
-function categoryBadge(badge) {
-  if (!badge) return "";
-  const cls = BADGE_CLASS[badge] || "";
-  return `<span class="category-badge ${cls}">${escapeHtml(badge)}</span>`;
-}
-
-// 手描き風の歪んだ輪郭（wobbly path）。border-radius の代わりに使う。
-// preserveAspectRatio="none" で要素の実サイズに合わせて伸縮させる。
-const BENTO_LARGE_PATH = "M8,4 C120,0 260,8 334,2 C338,30 336,70 336,92 C220,98 100,94 6,96 C2,64 4,30 8,4 Z";
-const BENTO_SMALL_PATHS = [
-  { d: "M6,6 C60,0 120,10 158,4 C162,26 160,52 156,72 C100,78 50,74 4,70 C2,50 3,26 6,6 Z", rotate: -1 },
-  { d: "M5,5 C58,10 118,2 159,7 C161,28 159,50 158,70 C102,76 48,72 6,68 C4,48 3,26 5,5 Z", rotate: 1 },
-];
-const FACILITY_OUTLINE_PATHS = [
-  "M6,4 C120,0 260,6 334,2 C336,20 335,38 334,54 C220,58 100,56 6,55 C4,38 5,18 6,4 Z",
-  "M4,4 C120,8 260,2 336,5 C334,20 335,38 336,54 C220,56 100,58 4,55 C6,38 5,18 4,4 Z",
-  "M6,5 C120,1 260,7 334,3 C336,20 335,38 334,53 C220,57 100,55 6,54 C4,37 5,19 6,5 Z",
-];
-
-function bentoBg(isLarge, index, fillColor) {
-  if (isLarge) {
-    return `<svg class="bento-bg" viewBox="0 0 340 90" preserveAspectRatio="none" aria-hidden="true"><path d="${BENTO_LARGE_PATH}" fill="${fillColor}"/></svg>`;
-  }
-  const variant = BENTO_SMALL_PATHS[index % BENTO_SMALL_PATHS.length];
-  return `<svg class="bento-bg" viewBox="0 0 164 78" preserveAspectRatio="none" aria-hidden="true" style="transform: rotate(${variant.rotate}deg);"><path d="${variant.d}" fill="${fillColor}"/></svg>`;
-}
-
-function facilityOutline(index) {
-  const d = FACILITY_OUTLINE_PATHS[index % FACILITY_OUTLINE_PATHS.length];
-  return `<svg class="facility-card-outline" viewBox="0 0 340 58" preserveAspectRatio="none" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--border)" stroke-width="1.5"/></svg>`;
-}
-
 function emptyState() {
   return `<div class="empty-state">
     <p>この条件に当てはまる予定はまだありません。</p>
@@ -166,39 +129,52 @@ function renderEvents(events, rangeKind, filters) {
     return;
   }
 
-  // ベントグリッド：直近（先頭）の1件だけを大きいブロックにし、
-  // 残りは小さいブロックで並べる（今日・直近の予定を目立たせるため）。
-  const cards = filtered
-    .map((e, i) => {
-      const isLarge = i === 0;
-      const isOfficial = e.badge === "子育て支援";
-      const fillColor = isOfficial ? "var(--river-pale)" : "var(--mtn-pale)";
-      const deepColor = isOfficial ? "var(--river-deep)" : "var(--mtn-deep)";
-      const midTextColor = isOfficial ? "var(--river-mid-text)" : "var(--mtn-mid-text)";
-      const placeLine = isOfficial
-        ? escapeHtml(e.facility_name)
-        : [e.organizer, e.location].filter(Boolean).map(escapeHtml).join(" ／ ");
+  // 日付ごとに1つの枠でくくり、その日の予定は件数によらず同じ書式で並べる
+  // （特定の施設・イベントだけを大きく見せる扱いの差をつけない）。
+  const byDate = {};
+  for (const e of filtered) {
+    (byDate[e.date] ||= []).push(e);
+  }
+  const dates = Object.keys(byDate).sort();
+
+  container.innerHTML = dates
+    .map((date) => {
+      const rows = byDate[date].map((e) => eventRow(e)).join("");
       return `
-        <div class="bento-card ${isLarge ? "is-large" : "is-small"}">
-          ${bentoBg(isLarge, i, fillColor)}
-          <div class="bento-body">
-            <p class="bento-label">${categoryBadge(e.badge)} <span class="bento-date" style="color:${midTextColor}">${escapeHtml(formatDateLabel(e.date))}</span></p>
-            <p class="bento-title hw" style="color:${deepColor}">${escapeHtml(e.title)}</p>
-            ${
-              isLarge
-                ? `${placeLine ? `<p class="bento-place" style="color:${deepColor}">${placeLine}</p>` : ""}
-            <div class="bento-meta">
-              ${ageBadge(e.age)}
-              ${renderSource(e.source)}
-            </div>`
-                : ""
-            }
-          </div>
+        <div class="date-group">
+          <div class="date-group-header">${escapeHtml(formatDateLabel(date))}</div>
+          <div class="date-group-body">${rows}</div>
         </div>`;
     })
     .join("");
+}
 
-  container.innerHTML = `<div class="bento-grid">${cards}</div>`;
+function eventRow(e) {
+  const isOfficial = e.badge === "子育て支援";
+  const dotClass = isOfficial ? "dot-official" : "dot-community";
+  const labelColor = isOfficial ? "var(--river-mid-text)" : "var(--mtn-mid-text)";
+  const titleColor = isOfficial ? "var(--river-deep)" : "var(--mtn-deep)";
+  const placeLine = isOfficial
+    ? e.facility_name
+    : [e.organizer, e.location].filter(Boolean).join(" ／ ");
+  const hasMeta = Boolean(placeLine || e.age || e.source);
+  return `
+    <div class="event-row">
+      <div class="event-row-main">
+        <span class="event-dot ${dotClass}" aria-hidden="true"></span>
+        <span class="event-label" style="color:${labelColor}">${escapeHtml(e.badge)}</span>
+        <span class="event-title hw" style="color:${titleColor}">${escapeHtml(e.title)}</span>
+      </div>
+      ${
+        hasMeta
+          ? `<div class="event-row-meta">
+        ${placeLine ? `<span>${escapeHtml(placeLine)}</span>` : ""}
+        ${ageBadge(e.age)}
+        ${renderSource(e.source)}
+      </div>`
+          : ""
+      }
+    </div>`;
 }
 
 function programRow(label, day, time) {
@@ -253,7 +229,6 @@ function renderFacilities(facilities) {
     (groups[f.type || "その他"] ||= []).push(f);
   }
 
-  let cardIndex = 0;
   container.innerHTML = order
     .filter((type) => groups[type])
     .map((type) => {
@@ -284,9 +259,8 @@ function renderFacilities(facilities) {
                 : "";
           const fav = isFavorite(f.name);
           const favLabel = fav ? "お気に入り登録済み" : "お気に入りに追加";
-          const html = `
+          return `
             <div class="facility-card">
-              ${facilityOutline(cardIndex)}
               <div class="facility-card-body">
                 <div class="facility-head">
                   <div class="facility-head-main">
@@ -304,8 +278,6 @@ function renderFacilities(facilities) {
                 </button>
               </div>
             </div>`;
-          cardIndex += 1;
-          return html;
         })
         .join("");
       return `

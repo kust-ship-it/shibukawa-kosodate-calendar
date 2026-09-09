@@ -78,27 +78,39 @@ main {
   margin: 0 0 0.75rem;
 }
 
-/* --- タブ・切替UI（タップ領域44px以上を確保） --- */
+/* --- タブ（手描き風の演出はここだけに限定：波線の下線） --- */
 .tabs {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  align-items: baseline;
+  gap: 20px;
+  margin-bottom: 1rem;
+  min-height: 44px;
 }
 .tab {
-  flex: 1;
-  min-height: 44px;
-  padding: 0.6rem 0;
+  position: relative;
   border: none;
-  border-radius: 999px;
-  background: var(--tab-inactive-bg);
-  color: var(--text);
+  background: none;
+  padding: 0.5rem 0.1rem;
+  min-height: 44px;
+  color: var(--text-muted);
   font-size: 15px;
-  font-weight: 600;
   -webkit-tap-highlight-color: transparent;
 }
 .tab.is-active {
-  background: var(--river-pale);
-  color: var(--river-deep);
+  font-size: 18px;
+  color: var(--text);
+}
+.tab .wavy-underline {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 4px;
+  width: calc(100% + 8px);
+  height: 8px;
+  visibility: hidden;
+}
+.tab.is-active .wavy-underline {
+  visibility: visible;
 }
 
 .mode-switch {
@@ -185,81 +197,63 @@ main {
   margin-bottom: 0.35rem;
 }
 
-/* --- カレンダー：ベントグリッド --- */
-.bento-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+/* --- カレンダー：日付ごとの枠＋行。輪郭はすべて直線で統一 --- */
+.date-group {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
 }
-.bento-card {
-  position: relative;
-  -webkit-tap-highlight-color: transparent;
-}
-.bento-card.is-large {
-  grid-column: 1 / 3;
-}
-.bento-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-}
-.bento-body {
-  position: relative;
-  z-index: 1;
-  padding: 14px 18px;
-  min-height: 44px;
-}
-.bento-card.is-small .bento-body {
-  padding: 10px 12px;
-}
-.bento-label {
-  margin: 0;
+.date-group-header {
+  background: #fafafa;
+  padding: 0.5rem 0.9rem;
   font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.event-row {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.event-row:last-child {
+  border-bottom: none;
+}
+.event-row-main {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  min-height: 44px;
 }
-.bento-title {
-  margin: 6px 0 0;
-  font-size: 19px;
-  line-height: 1.6;
+.event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
-.bento-card.is-small .bento-title {
-  font-size: 15px;
-  margin-top: 4px;
+.event-dot.dot-official {
+  background: var(--river-deep);
 }
-.bento-meta {
-  margin-top: 0.5rem;
+.event-dot.dot-community {
+  background: var(--mtn-deep);
+}
+.event-label {
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.event-title {
+  font-size: 16px;
+}
+.event-row-meta {
+  margin-top: 0.35rem;
+  margin-left: 1.3rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
   font-size: 14px;
-}
-.bento-place {
-  margin: 2px 0 0;
-  font-size: 14px;
   color: var(--text-muted);
-}
-
-.category-badge {
-  border-radius: 999px;
-  padding: 0.1rem 0.6rem;
-  font-size: 13px;
-  font-weight: 600;
-}
-.category-badge.badge-official {
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--river-mid-text); /* 補足ラベルなので中間色（4.5:1確保済み） */
-}
-.category-badge.badge-community {
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--mtn-mid-text);
-}
-.bento-date {
-  font-weight: 600;
 }
 
 .age-badge {
@@ -330,21 +324,13 @@ main {
   padding-bottom: 4px;
 }
 
-/* --- 施設カード：塗りなし・手描き風輪郭のみ --- */
+/* --- 施設カード：塗りなし・直線の輪郭のみ（手描き風演出はタブのみに限定） --- */
 .facility-card {
-  position: relative;
   margin-bottom: 12px;
-}
-.facility-card-outline {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
 .facility-card-body {
-  position: relative;
-  z-index: 1;
   padding: 12px 16px;
 }
 .facility-head {
@@ -367,16 +353,6 @@ main {
 .support-name {
   color: var(--text-muted);
   font-size: 14px;
-}
-.chevron {
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  flex-shrink: 0;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .address {
   margin-top: 0.3rem;

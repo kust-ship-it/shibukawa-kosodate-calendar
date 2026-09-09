@@ -22,10 +22,22 @@
       <button class="mode-btn" data-mode="favorite">お気に入り</button>
       <button class="mode-btn" data-mode="event">イベント</button>
     </div>
-    <div class="tabs" role="tablist">
-      <button class="tab is-active" data-range="today">今日</button>
-      <button class="tab" data-range="week">今週</button>
-      <button class="tab" data-range="month">今月</button>
+    <div class="tabs hw" role="tablist">
+      <button class="tab is-active" data-range="today">今日
+        <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="tab" data-range="week">今週
+        <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="tab" data-range="month">今月
+        <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
 
     <div class="filters">
@@ -57,7 +69,6 @@
 
   <section class="section" id="facility-section">
     <h2 class="hw">実施施設</h2>
-    <p class="lead">特別な企画がなくても、日頃から利用できる施設の一覧です。</p>
     <div id="facility-map"></div>
     <div id="facility-groups"></div>
   </section>
