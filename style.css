@@ -352,8 +352,100 @@ main {
   color: var(--river-deep);
 }
 
+/* --- 施設一覧：検索窓・種別チップ・お気に入り絞り込み --- */
+.facility-search-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.facility-search-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+}
+.facility-type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.facility-type-chip {
+  min-height: 44px;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+.facility-type-chip.is-active {
+  background: var(--taupe-mid);
+  border-color: var(--taupe-text);
+  color: var(--taupe-text);
+  font-weight: 600;
+}
+.facility-favorite-toggle {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-bg);
+  font-size: 14px;
+  min-height: 44px;
+  padding: 0.3rem 0.8rem;
+  color: var(--text-muted);
+  -webkit-tap-highlight-color: transparent;
+}
+.facility-favorite-toggle .star {
+  font-size: 1.05rem;
+}
+.facility-favorite-toggle.is-active {
+  color: #a6790a;
+  border-color: #a6790a;
+  background: #fff8e8;
+}
+
+/* --- 施設一覧：カテゴリごとのアコーディオン（<details>/<summary>） --- */
 .facility-type-group {
   margin-bottom: 1.1rem;
+}
+.facility-group-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  min-height: 44px;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.facility-group-summary::-webkit-details-marker {
+  display: none;
+}
+.facility-group-summary::after {
+  content: "›";
+  display: inline-block;
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 16px;
+  transform: rotate(0deg);
+  transition: transform 0.15s ease;
+}
+details[open] > .facility-group-summary::after {
+  transform: rotate(90deg);
+}
+.facility-group-count {
+  font-weight: 400;
+}
+.facility-group-body {
+  padding-top: 0.6rem;
 }
 .type-badge {
   display: inline-block;

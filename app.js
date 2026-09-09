@@ -326,7 +326,57 @@ function facilityGroupFor(type) {
   return "保育園・幼稚園"; // 私立・公立
 }
 
-function renderFacilities(facilities) {
+function facilityCardHtml(f) {
+  const displayName = escapeHtml(f.name);
+  const subNames = [f.support_name, f.salon_name].filter(Boolean).map(escapeHtml).join(" / ");
+  const programs = [
+    programRow("ふれあい保育", f.furea_day, f.furea_time),
+    programRow("園庭開放", f.sono_day, f.sono_time),
+    programRow("育児相談", f.sodan_day, f.sodan_time),
+    programRow("こあらクラブ", f.koala_day, ""),
+  ].join("");
+  const communityTips = (f.community_tips || [])
+    .map(
+      (t) => `
+        <div class="community-tip">
+          📢 ${escapeHtml(t.info)}
+          ${t.photo_url ? ` <a href="${escapeHtml(t.photo_url)}" target="_blank" rel="noopener">📷写真</a>` : ""}
+        </div>`
+    )
+    .join("");
+  const sourceInfo =
+    f.source_type === "Web" && f.source_url
+      ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">🔗 詳しくはこちら</a></div>`
+      : f.source_type === "紙媒体" && !communityTips
+        ? `<div class="source-note">Web上に情報はありません。ご存じの方はお知らせください</div>`
+        : "";
+  const fav = isFavorite(f.name);
+  const favLabel = fav ? "お気に入り登録済み" : "お気に入りに追加";
+  return `
+    <div class="facility-card" data-facility-name="${escapeHtml(f.name)}">
+      <div class="facility-card-body">
+        <div class="facility-head">
+          <div class="facility-head-main">
+            <span class="fname hw">${displayName}</span>
+            ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
+          </div>
+        </div>
+        ${f.address ? `<div class="address">📍 ${escapeHtml(f.address)}</div>` : ""}
+        ${programs ? `<div class="programs">${programs}</div>` : ""}
+        ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">📞 ${f.phone}</a></div>` : ""}
+        ${sourceInfo}
+        ${communityTips}
+        <button type="button" class="favorite-btn${fav ? " is-active" : ""}" data-facility="${escapeHtml(f.name)}" aria-label="${favLabel}（${displayName}）">
+          <span class="star" aria-hidden="true">${fav ? "★" : "☆"}</span><span>${favLabel}</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+// カテゴリごとのアコーディオン開閉状態。初期値は件数の少ない支援センターだけ開いておく。
+const facilityAccordionOpen = { "支援センター": true, "保育園・幼稚園": false, "公民館": false };
+
+function renderFacilities(facilities, filterState) {
   const container = document.getElementById("facility-groups");
   const groups = {};
   for (const f of facilities) {
@@ -336,64 +386,44 @@ function renderFacilities(facilities) {
   // 「保育園・幼稚園」は私立・公立を区別せず施設名順に混在させる
   Object.values(groups).forEach((list) => list.sort((a, b) => a.name.localeCompare(b.name, "ja")));
 
-  container.innerHTML = FACILITY_GROUP_ORDER
-    .filter((type) => groups[type])
+  const query = (filterState.search || "").trim();
+  const hasActiveFilter = Boolean(query) || Boolean(filterState.type) || Boolean(filterState.favoriteOnly);
+
+  const sections = FACILITY_GROUP_ORDER.filter((type) => groups[type])
     .map((type) => {
-      const cards = groups[type]
-        .map((f) => {
-          const displayName = escapeHtml(f.name);
-          const subNames = [f.support_name, f.salon_name].filter(Boolean).map(escapeHtml).join(" / ");
-          const programs = [
-            programRow("ふれあい保育", f.furea_day, f.furea_time),
-            programRow("園庭開放", f.sono_day, f.sono_time),
-            programRow("育児相談", f.sodan_day, f.sodan_time),
-            programRow("こあらクラブ", f.koala_day, ""),
-          ].join("");
-          const communityTips = (f.community_tips || [])
-            .map(
-              (t) => `
-                <div class="community-tip">
-                  📢 ${escapeHtml(t.info)}
-                  ${t.photo_url ? ` <a href="${escapeHtml(t.photo_url)}" target="_blank" rel="noopener">📷写真</a>` : ""}
-                </div>`
-            )
-            .join("");
-          const sourceInfo =
-            f.source_type === "Web" && f.source_url
-              ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">🔗 詳しくはこちら</a></div>`
-              : f.source_type === "紙媒体" && !communityTips
-                ? `<div class="source-note">Web上に情報はありません。ご存じの方はお知らせください</div>`
-                : "";
-          const fav = isFavorite(f.name);
-          const favLabel = fav ? "お気に入り登録済み" : "お気に入りに追加";
-          return `
-            <div class="facility-card" data-facility-name="${escapeHtml(f.name)}">
-              <div class="facility-card-body">
-                <div class="facility-head">
-                  <div class="facility-head-main">
-                    <span class="fname hw">${displayName}</span>
-                    ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
-                  </div>
-                </div>
-                ${f.address ? `<div class="address">📍 ${escapeHtml(f.address)}</div>` : ""}
-                ${programs ? `<div class="programs">${programs}</div>` : ""}
-                ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">📞 ${f.phone}</a></div>` : ""}
-                ${sourceInfo}
-                ${communityTips}
-                <button type="button" class="favorite-btn${fav ? " is-active" : ""}" data-facility="${escapeHtml(f.name)}" aria-label="${favLabel}（${displayName}）">
-                  <span class="star" aria-hidden="true">${fav ? "★" : "☆"}</span><span>${favLabel}</span>
-                </button>
-              </div>
-            </div>`;
-        })
-        .join("");
+      if (filterState.type && filterState.type !== type) return "";
+      let list = groups[type];
+      if (query) {
+        list = list.filter(
+          (f) => f.name.includes(query) || (f.support_name || "").includes(query) || (f.salon_name || "").includes(query)
+        );
+      }
+      if (filterState.favoriteOnly) {
+        list = list.filter((f) => isFavorite(f.name));
+      }
+      if (list.length === 0) return "";
+      // フィルター適用中は該当カテゴリを強制的に開き、結果を隠さない
+      const isOpen = hasActiveFilter ? true : Boolean(facilityAccordionOpen[type]);
+      const cards = list.map((f) => facilityCardHtml(f)).join("");
       return `
-        <div class="facility-type-group">
-          <h3 class="type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">${type}</h3>
-          ${cards}
-        </div>`;
+        <details class="facility-type-group" data-group="${type}"${isOpen ? " open" : ""}>
+          <summary class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">
+            <span class="facility-group-label">${type}</span>
+            <span class="facility-group-count">${list.length}件</span>
+          </summary>
+          <div class="facility-group-body">${cards}</div>
+        </details>`;
     })
     .join("");
+
+  container.innerHTML =
+    sections.trim() || `<div class="empty-state"><p>この条件に当てはまる施設は見つかりませんでした。</p></div>`;
+
+  container.querySelectorAll("details.facility-type-group").forEach((el) => {
+    el.addEventListener("toggle", () => {
+      facilityAccordionOpen[el.dataset.group] = el.open;
+    });
+  });
 }
 
 function populateFacilityFilter(events) {
@@ -418,9 +448,12 @@ async function main() {
       mode: state.mode,
     });
 
+  const facilityFilterState = { search: "", type: "", favoriteOnly: false };
+  const rerenderFacilities = () => renderFacilities(data.facilities, facilityFilterState);
+
   rerender();
   renderMap(data.facilities);
-  renderFacilities(data.facilities);
+  rerenderFacilities();
   populateFacilityFilter(data.events);
 
   document.querySelectorAll(".tab").forEach((btn) => {
@@ -456,12 +489,57 @@ async function main() {
     });
   });
 
-  document.getElementById("event-list").addEventListener("click", (e) => {
-    const chip = e.target.closest(".open-facility-chip");
-    if (!chip) return;
-    const card = document.querySelector(
-      `.facility-card[data-facility-name="${CSS.escape(chip.dataset.facility)}"]`
-    );
+  document.getElementById("facility-search").addEventListener("input", (e) => {
+    facilityFilterState.search = e.target.value;
+    rerenderFacilities();
+  });
+
+  document.querySelectorAll(".facility-type-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".facility-type-chip").forEach((b) => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      facilityFilterState.type = btn.dataset.type;
+      rerenderFacilities();
+    });
+  });
+
+  const favoriteToggle = document.getElementById("facility-favorite-toggle");
+  favoriteToggle.addEventListener("click", () => {
+    facilityFilterState.favoriteOnly = !facilityFilterState.favoriteOnly;
+    favoriteToggle.classList.toggle("is-active", facilityFilterState.favoriteOnly);
+    favoriteToggle.setAttribute("aria-pressed", String(facilityFilterState.favoriteOnly));
+    rerenderFacilities();
+  });
+
+  // 「ほかに開いている場所」チップから施設カードへジャンプする。
+  // 一覧側のフィルターで対象が隠れていれば解除し、アコーディオンが畳まれていれば開いてからスクロール＋ハイライトする。
+  function jumpToFacility(name) {
+    let filtersChanged = false;
+    if (facilityFilterState.search) {
+      facilityFilterState.search = "";
+      document.getElementById("facility-search").value = "";
+      filtersChanged = true;
+    }
+    if (facilityFilterState.type) {
+      facilityFilterState.type = "";
+      document.querySelectorAll(".facility-type-chip").forEach((b) => b.classList.toggle("is-active", b.dataset.type === ""));
+      filtersChanged = true;
+    }
+    if (facilityFilterState.favoriteOnly) {
+      facilityFilterState.favoriteOnly = false;
+      favoriteToggle.classList.remove("is-active");
+      favoriteToggle.setAttribute("aria-pressed", "false");
+      filtersChanged = true;
+    }
+
+    const facility = data.facilities.find((f) => f.name === name);
+    if (facility) {
+      facilityAccordionOpen[facilityGroupFor(facility.type)] = true;
+    }
+
+    if (filtersChanged || facility) rerenderFacilities();
+
+    const card = document.querySelector(`.facility-card[data-facility-name="${CSS.escape(name)}"]`);
     if (!card) return;
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.remove("is-highlighted");
@@ -469,6 +547,12 @@ async function main() {
     void card.offsetWidth;
     card.classList.add("is-highlighted");
     window.setTimeout(() => card.classList.remove("is-highlighted"), 1600);
+  }
+
+  document.getElementById("event-list").addEventListener("click", (e) => {
+    const chip = e.target.closest(".open-facility-chip");
+    if (!chip) return;
+    jumpToFacility(chip.dataset.facility);
   });
 
   document.getElementById("facility-groups").addEventListener("click", (e) => {
@@ -482,6 +566,7 @@ async function main() {
     btn.setAttribute("aria-label", `${favLabel}（${name}）`);
     btn.innerHTML = `<span class="star" aria-hidden="true">${fav ? "★" : "☆"}</span><span>${favLabel}</span>`;
     if (state.mode === "favorite") rerender();
+    if (facilityFilterState.favoriteOnly) rerenderFacilities();
   });
 
   const updatedAt = new Date(data.generated_at);
