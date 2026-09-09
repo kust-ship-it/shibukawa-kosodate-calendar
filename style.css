@@ -294,7 +294,8 @@ main {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.open-facility-chip::after {
+.open-facility-chip::after,
+.facility-jump-chip::after {
   content: " ›";
 }
 
