@@ -345,6 +345,10 @@ main {
 .type-badge.type-community {
   background: var(--taupe-light);
 }
+.type-badge-inline {
+  margin: 0; /* カレンダー行の中でインライン表示する場合は見出し用の下マージンを打ち消す */
+  font-size: 14px;
+}
 
 /* --- 施設カード：塗りなし・直線の輪郭のみ（手描き風演出はタブのみに限定） --- */
 .facility-card {

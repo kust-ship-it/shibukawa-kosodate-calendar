@@ -157,6 +157,11 @@ function eventRow(e) {
   const placeLine = isOfficial
     ? e.facility_name
     : [e.organizer, e.location].filter(Boolean).join(" ／ ");
+  // 施設一覧と同じロジック・同じ配色（タウプ3階調）を再利用し、二重管理を避ける
+  const facilityGroup = isOfficial && e.facility_type ? facilityGroupFor(e.facility_type) : null;
+  const placeClass = facilityGroup
+    ? `type-badge type-badge-inline ${FACILITY_GROUP_BADGE_CLASS[facilityGroup]}`
+    : "event-place";
   const hasMeta = Boolean(placeLine || e.age || e.source);
   return `
     <div class="event-row">
@@ -168,7 +173,7 @@ function eventRow(e) {
       ${
         hasMeta
           ? `<div class="event-row-meta">
-        ${placeLine ? `<span class="event-place">${escapeHtml(placeLine)}</span>` : ""}
+        ${placeLine ? `<span class="${placeClass}">${escapeHtml(placeLine)}</span>` : ""}
         ${ageBadge(e.age)}
         ${renderSource(e.source)}
       </div>`

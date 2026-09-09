@@ -94,7 +94,10 @@ def _number(props: dict, name: str):
     return prop["number"]
 
 
-def build_events(client: Client) -> list[dict]:
+def build_events(client: Client, facility_types_by_id: dict[str, str] | None = None) -> list[dict]:
+    # 施設名（テキスト）は「施設名（子育て支援名称）」のような合成表記のことが多く
+    # 施設マスタのタイトルと文字列一致しないため、「施設」relationのページIDで引く。
+    facility_types_by_id = facility_types_by_id or {}
     pages = _query_all(client, EVENTS_DATA_SOURCE_ID)
     events = []
     for page in pages:
@@ -106,11 +109,16 @@ def build_events(client: Client) -> list[dict]:
         if _select(props, "確認状況") != "確認済み":
             continue  # 自動登録の未確認イベントは人がレビューするまで非公開
         age = _select(props, "対象年齢")
+        facility_name = _rich_text(props, "施設名")
+        facility_relation = (props.get("施設") or {}).get("relation") or []
+        facility_id = facility_relation[0]["id"] if facility_relation else None
+        facility_type = facility_types_by_id.get(facility_id, "") if facility_id else ""
         events.append(
             {
                 "title": title,
                 "date": date_prop["start"][:10],
-                "facility_name": _rich_text(props, "施設名"),
+                "facility_name": facility_name,
+                "facility_type": facility_type,
                 "category": _select(props, "種別"),
                 "age": age,
                 "memo": _rich_text(props, "メモ"),
@@ -153,6 +161,12 @@ def build_community_events(client: Client) -> list[dict]:
             }
         )
     return events
+
+
+def build_facility_types_by_id(client: Client) -> dict[str, str]:
+    """施設マスタのページID→施設種別の対応表（イベント側の「施設」relationを引くため）。"""
+    pages = _query_all(client, FACILITIES_DATA_SOURCE_ID)
+    return {page["id"]: _select(page["properties"], "施設種別") for page in pages}
 
 
 def build_facilities(client: Client) -> list[dict]:
@@ -209,17 +223,19 @@ def build_facility_tips(client: Client) -> dict[str, list[dict]]:
 
 def main() -> None:
     client = _client()
+    print("施設マスタを取得中...")
+    facilities = build_facilities(client)
+    print(f"  {len(facilities)}件")
+    facility_types_by_id = build_facility_types_by_id(client)
+
     print("イベントを取得中...")
-    events = build_events(client)
+    events = build_events(client, facility_types_by_id)
     print(f"  {len(events)}件")
     print("地域イベント（承認済み）を取得中...")
     community_events = build_community_events(client)
     events.extend(community_events)
     events.sort(key=lambda e: e["date"])
     print(f"  {len(community_events)}件")
-    print("施設マスタを取得中...")
-    facilities = build_facilities(client)
-    print(f"  {len(facilities)}件")
     print("施設情報提供（反映済み）を取得中...")
     tips = build_facility_tips(client)
     for f in facilities:
