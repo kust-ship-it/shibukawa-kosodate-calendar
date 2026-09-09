@@ -13,6 +13,7 @@
   --river-mid: #5C8A9B;    /* 非テキスト装飾専用（3:1は満たすが4.5:1は満たさない） */
   --river-mid-text: #4C7381; /* 補足テキスト用。--river-mid を暗くして4.5:1を確保 */
   --river-deep: #3A5F6E;   /* 主要テキスト用。6:1以上 */
+  --river-highlight: #D8E9EE; /* ジャンプ到達時のハイライト専用。--river-paleより一段濃く、--text-muted(4.596:1)も確保 */
 
   /* 赤城山（イベント） */
   --mtn-pale: #EEF1EA;
@@ -479,16 +480,32 @@ details[open] > .facility-group-summary::after {
   border-radius: 10px;
 }
 .facility-card.is-highlighted {
-  animation: facility-highlight 1.6s ease;
+  animation: facility-highlight 1.9s ease;
 }
 @keyframes facility-highlight {
   0% {
-    background: var(--river-pale);
+    background: var(--card-bg);
+    border-color: var(--border);
+    box-shadow: none;
+    transform: scale(1);
+  }
+  10% {
+    background: var(--river-highlight);
     border-color: var(--river-deep);
+    box-shadow: 0 0 0 3px rgba(58, 95, 110, 0.22);
+    transform: scale(1.015);
+  }
+  45% {
+    background: var(--river-highlight);
+    border-color: var(--river-deep);
+    box-shadow: 0 0 0 3px rgba(58, 95, 110, 0.22);
+    transform: scale(1.015);
   }
   100% {
-    background: transparent;
+    background: var(--card-bg);
     border-color: var(--border);
+    box-shadow: none;
+    transform: scale(1);
   }
 }
 .facility-card-body {

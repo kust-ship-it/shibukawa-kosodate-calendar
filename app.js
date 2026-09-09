@@ -541,7 +541,7 @@ async function main() {
     // 直前にも当てていた場合に再アニメーションさせるため一度リフローを挟む
     void card.offsetWidth;
     card.classList.add("is-highlighted");
-    window.setTimeout(() => card.classList.remove("is-highlighted"), 1600);
+    window.setTimeout(() => card.classList.remove("is-highlighted"), 1900);
   }
 
   document.getElementById("event-list").addEventListener("click", (e) => {
