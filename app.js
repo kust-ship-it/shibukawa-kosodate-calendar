@@ -329,9 +329,25 @@ const FACILITY_GROUP_BADGE_CLASS = {
 };
 
 function facilityGroupFor(type) {
-  if (type === "支援センター" || type === "公民館") return type;
-  return "保育園・幼稚園"; // 私立・公立
+  if (type === "私立" || type === "公立") return "保育園・幼稚園";
+  if (type === "公民館") return "公民館";
+  // 支援センターおよび、それ以外の分類外の施設（だれでも広場等）はここに合流する。
+  // 施設一覧側では畳まずに常時表示するグループとして扱う（ACCORDION_GROUPS参照）。
+  return "支援センター";
 }
+
+// アコーディオン（折りたたみ）で表示するのはこの2グループのみ。
+// 支援センター種別・分類外の施設は件数が少なく無理にカテゴリ分けすると個別施設名と
+// 紛らわしいため、常時開いた状態でまとめて表示する。
+const ACCORDION_GROUPS = ["保育園・幼稚園", "公民館"];
+
+// 常時表示グループの見出しは、個別施設名（例：「渋川市子育て支援センター」）と
+// 紛らわしくない素っ気ない言葉にする。
+const FACILITY_GROUP_LABEL = {
+  "支援センター": "主要な施設",
+  "保育園・幼稚園": "保育園・幼稚園",
+  "公民館": "公民館",
+};
 
 // 色だけに頼らず種別を判別できるよう、各ラベルの先頭に添えるアイコン（Tabler Icons outline）。
 // stroke="currentColor"でラベルの文字色を継承する。
@@ -421,15 +437,25 @@ function renderFacilities(facilities, filterState) {
         list = list.filter((f) => isFavorite(f.name));
       }
       if (list.length === 0) return "";
+      const cards = list.map((f) => facilityCardHtml(f)).join("");
+      const heading = `
+            <span class="facility-group-label">${facilityGroupIcon(type)}${FACILITY_GROUP_LABEL[type]}</span>
+            <span class="facility-group-count">${list.length}件</span>`;
+
+      if (!ACCORDION_GROUPS.includes(type)) {
+        // 少数施設・分類外の施設は畳まず常時表示する
+        return `
+        <div class="facility-type-group">
+          <h3 class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">${heading}</h3>
+          <div class="facility-group-body">${cards}</div>
+        </div>`;
+      }
+
       // フィルター適用中は該当カテゴリを強制的に開き、結果を隠さない
       const isOpen = hasActiveFilter ? true : Boolean(facilityAccordionOpen[type]);
-      const cards = list.map((f) => facilityCardHtml(f)).join("");
       return `
         <details class="facility-type-group" data-group="${type}"${isOpen ? " open" : ""}>
-          <summary class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">
-            <span class="facility-group-label">${facilityGroupIcon(type)}${type}</span>
-            <span class="facility-group-count">${list.length}件</span>
-          </summary>
+          <summary class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">${heading}</summary>
           <div class="facility-group-body">${cards}</div>
         </details>`;
     })
