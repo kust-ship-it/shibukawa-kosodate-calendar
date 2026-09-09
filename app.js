@@ -168,7 +168,7 @@ function eventRow(e) {
       ${
         hasMeta
           ? `<div class="event-row-meta">
-        ${placeLine ? `<span>${escapeHtml(placeLine)}</span>` : ""}
+        ${placeLine ? `<span class="event-place">${escapeHtml(placeLine)}</span>` : ""}
         ${ageBadge(e.age)}
         ${renderSource(e.source)}
       </div>`
@@ -221,15 +221,31 @@ function renderMap(facilities) {
   map.fitBounds(group.getBounds().pad(0.15));
 }
 
+// 市の公式お知らせと同じ並び順（支援センター→保育園・幼稚園→公民館）に揃える。
+// 私立・公立は「保育園・幼稚園」として統合表示する。
+const FACILITY_GROUP_ORDER = ["支援センター", "保育園・幼稚園", "公民館"];
+const FACILITY_GROUP_BADGE_CLASS = {
+  "支援センター": "type-support",
+  "保育園・幼稚園": "type-childcare",
+  "公民館": "type-community",
+};
+
+function facilityGroupFor(type) {
+  if (type === "支援センター" || type === "公民館") return type;
+  return "保育園・幼稚園"; // 私立・公立
+}
+
 function renderFacilities(facilities) {
   const container = document.getElementById("facility-groups");
-  const order = ["私立", "公立", "公民館", "支援センター"];
   const groups = {};
   for (const f of facilities) {
-    (groups[f.type || "その他"] ||= []).push(f);
+    const g = facilityGroupFor(f.type);
+    (groups[g] ||= []).push(f);
   }
+  // 「保育園・幼稚園」は私立・公立を区別せず施設名順に混在させる
+  Object.values(groups).forEach((list) => list.sort((a, b) => a.name.localeCompare(b.name, "ja")));
 
-  container.innerHTML = order
+  container.innerHTML = FACILITY_GROUP_ORDER
     .filter((type) => groups[type])
     .map((type) => {
       const cards = groups[type]
@@ -282,7 +298,7 @@ function renderFacilities(facilities) {
         .join("");
       return `
         <div class="facility-type-group">
-          <h3>${type}</h3>
+          <h3 class="type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">${type}</h3>
           ${cards}
         </div>`;
     })

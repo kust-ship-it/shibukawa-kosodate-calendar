@@ -23,6 +23,14 @@
   --accent: var(--river-deep);
   --accent-bg: var(--river-pale);
 
+  /* 施設種別（カレンダーの青/緑とは系統を分けた暖色系グレー） */
+  --taupe-text: #5B5146; /* 3色すべてで4.5:1以上を確保 */
+  --taupe-light: #F5F1EC;  /* 公民館 */
+  --taupe-mid: #E8DFD2;    /* 保育園・幼稚園 */
+  --taupe-dark: #D3C4AE;   /* 支援センター */
+
+  --divider: #e2ded8; /* 日付枠内の区切り線（塗り背景向けの柔らかい線） */
+
   font-size: 16px;
 }
 
@@ -197,24 +205,23 @@ main {
   margin-bottom: 0.35rem;
 }
 
-/* --- カレンダー：日付ごとの枠＋行。輪郭はすべて直線で統一 --- */
+/* --- カレンダー：日付ごとの枠（塗り）＋行。輪郭線は使わず塗りで表現 --- */
 .date-group {
-  border: 1px solid var(--border);
+  background: #F7F7F5;
   border-radius: 10px;
   margin-bottom: 0.75rem;
   overflow: hidden;
 }
 .date-group-header {
-  background: #fafafa;
   padding: 0.5rem 0.9rem;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-muted);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--divider);
 }
 .event-row {
   padding: 0.65rem 0.9rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--divider);
 }
 .event-row:last-child {
   border-bottom: none;
@@ -255,9 +262,13 @@ main {
   font-size: 14px;
   color: var(--text-muted);
 }
+.event-place {
+  font-weight: 600;
+  color: var(--text);
+}
 
 .age-badge {
-  background: rgba(255, 255, 255, 0.7);
+  background: #ffffff;
   border-radius: 999px;
   padding: 0.1rem 0.6rem;
   color: var(--text);
@@ -315,13 +326,24 @@ main {
 .facility-type-group {
   margin-bottom: 1.1rem;
 }
-.facility-type-group h3 {
+.type-badge {
+  display: inline-block;
   font-family: sans-serif;
   font-size: 13px;
-  color: var(--text-muted);
-  margin: 0 0 0.5rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 4px;
+  font-weight: 600;
+  color: var(--taupe-text);
+  margin: 0 0 0.6rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+}
+.type-badge.type-support {
+  background: var(--taupe-dark);
+}
+.type-badge.type-childcare {
+  background: var(--taupe-mid);
+}
+.type-badge.type-community {
+  background: var(--taupe-light);
 }
 
 /* --- 施設カード：塗りなし・直線の輪郭のみ（手描き風演出はタブのみに限定） --- */
@@ -347,7 +369,7 @@ main {
 }
 .fname {
   font-weight: 400;
-  font-size: 17px;
+  font-size: 19px;
   color: var(--river-deep);
 }
 .support-name {
