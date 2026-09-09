@@ -1,12 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Yomogi&display=swap');
+
 :root {
-  --bg: #faf9f7;
+  --bg: #ffffff;
   --card-bg: #ffffff;
-  --text: #2b2b2b;
-  --text-muted: #6b6b6b;
-  --accent: #e8836b;
-  --accent-bg: #fdeee9;
-  --border: #e5e1db;
+  --text: #333333;
+  --text-muted: #666666;
+  --border: #949494; /* #ccc は白背景で1.6:1しかなく非テキストUIの3:1基準を満たさないため濃くした */
   --tab-inactive-bg: #f0ede8;
+
+  /* 利根川（子育て支援） */
+  --river-pale: #EAF2F5;   /* 塗り専用 */
+  --river-mid: #5C8A9B;    /* 非テキスト装飾専用（3:1は満たすが4.5:1は満たさない） */
+  --river-mid-text: #4C7381; /* 補足テキスト用。--river-mid を暗くして4.5:1を確保 */
+  --river-deep: #3A5F6E;   /* 主要テキスト用。6:1以上 */
+
+  /* 赤城山（イベント） */
+  --mtn-pale: #EEF1EA;
+  --mtn-mid: #7B8C74;
+  --mtn-mid-text: #64715E;
+  --mtn-deep: #4F5C49;
+
+  --accent: var(--river-deep);
+  --accent-bg: var(--river-pale);
+
   font-size: 16px;
 }
 
@@ -16,9 +32,15 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-weight: 300;
   line-height: 1.6;
   padding-bottom: 2rem;
+}
+
+.hw {
+  font-family: 'Yomogi', cursive;
+  font-weight: 400;
 }
 
 .header {
@@ -27,12 +49,13 @@ body {
 }
 .header h1 {
   margin: 0 0 0.25rem;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  color: var(--river-deep);
 }
 .header .lead {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 14px;
 }
 
 main {
@@ -45,15 +68,37 @@ main {
   margin-top: 1.5rem;
 }
 .section h2 {
-  font-size: 1.05rem;
-  margin: 0 0 0.5rem;
-  border-left: 4px solid var(--accent);
-  padding-left: 0.5rem;
+  font-size: 1.15rem;
+  margin: 0 0 0.6rem;
+  color: var(--river-deep);
 }
 .section > .lead {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 14px;
   margin: 0 0 0.75rem;
+}
+
+/* --- タブ・切替UI（タップ領域44px以上を確保） --- */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.tab {
+  flex: 1;
+  min-height: 44px;
+  padding: 0.6rem 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--tab-inactive-bg);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.is-active {
+  background: var(--river-pale);
+  color: var(--river-deep);
 }
 
 .mode-switch {
@@ -66,39 +111,19 @@ main {
 }
 .mode-btn {
   flex: 1;
+  min-height: 44px;
   padding: 0.45rem 0;
   border: none;
   border-radius: 999px;
   background: transparent;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 14px;
   font-weight: 600;
   -webkit-tap-highlight-color: transparent;
 }
 .mode-btn.is-active {
   background: var(--card-bg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-.tab {
-  flex: 1;
-  padding: 0.6rem 0;
-  border: none;
-  border-radius: 999px;
-  background: var(--tab-inactive-bg);
-  color: var(--text);
-  font-size: 0.95rem;
-  font-weight: 600;
-  -webkit-tap-highlight-color: transparent;
-}
-.tab.is-active {
-  background: var(--accent);
-  color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .filters {
@@ -109,12 +134,13 @@ main {
 }
 .facility-filter {
   width: 100%;
+  min-height: 44px;
   padding: 0.5rem 0.6rem;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--card-bg);
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 14px;
 }
 .age-filters {
   display: flex;
@@ -122,225 +148,323 @@ main {
   gap: 0.4rem;
 }
 .age-filter-btn {
-  padding: 0.35rem 0.7rem;
+  min-height: 44px;
+  padding: 0.4rem 0.8rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--card-bg);
   color: var(--text);
-  font-size: 0.78rem;
+  font-size: 14px;
   -webkit-tap-highlight-color: transparent;
 }
 .age-filter-btn.is-active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: var(--river-pale);
+  border-color: var(--river-deep);
+  color: var(--river-deep);
 }
 
 .legend {
-  background: var(--accent-bg);
+  background: var(--river-pale);
   border-radius: 10px;
   padding: 0.5rem 0.9rem;
   margin-bottom: 0.9rem;
-  font-size: 0.85rem;
+  font-size: 14px;
 }
 .legend summary {
   font-weight: 600;
   cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 .legend ul {
   margin: 0.5rem 0 0.25rem;
   padding-left: 1.1rem;
 }
 .legend li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
 }
 
-.event-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+/* --- カレンダー：ベントグリッド --- */
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-
-.date-group {
-  margin-bottom: 0.2rem;
+.bento-card {
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
 }
-.date-group h3 {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin: 0.8rem 0 0.4rem;
-  font-weight: 600;
+.bento-card.is-large {
+  grid-column: 1 / 3;
 }
-
-.event-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.75rem 0.9rem;
+.bento-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
-.event-card .title-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
-  font-weight: 600;
-  font-size: 0.95rem;
+.bento-body {
+  position: relative;
+  z-index: 1;
+  padding: 14px 18px;
+  min-height: 44px;
 }
-.event-card .facility {
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  margin-top: 0.15rem;
+.bento-card.is-small .bento-body {
+  padding: 10px 12px;
 }
-.event-card .meta-row {
+.bento-label {
+  margin: 0;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin-top: 0.4rem;
-  font-size: 0.8rem;
+}
+.bento-title {
+  margin: 6px 0 0;
+  font-size: 19px;
+  line-height: 1.6;
+}
+.bento-card.is-small .bento-title {
+  font-size: 15px;
+  margin-top: 4px;
+}
+.bento-meta {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   flex-wrap: wrap;
+  font-size: 14px;
 }
-.age-badge {
-  background: var(--accent-bg);
-  border-radius: 999px;
-  padding: 0.1rem 0.55rem;
+.bento-place {
+  margin: 2px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
 }
+
 .category-badge {
   border-radius: 999px;
-  padding: 0.05rem 0.5rem;
-  font-size: 0.72rem;
+  padding: 0.1rem 0.6rem;
+  font-size: 13px;
   font-weight: 600;
-  flex-shrink: 0;
-  margin-top: 0.1rem;
 }
 .category-badge.badge-official {
-  background: var(--accent-bg);
-  color: var(--accent);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--river-mid-text); /* 補足ラベルなので中間色（4.5:1確保済み） */
 }
 .category-badge.badge-community {
-  background: #e5eef9;
-  color: #3a6ea5;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--mtn-mid-text);
+}
+.bento-date {
+  font-weight: 600;
+}
+
+.age-badge {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  color: var(--text);
 }
 .source-link {
-  color: var(--accent);
+  color: var(--river-deep);
   text-decoration: none;
+  font-weight: 600;
+}
+.source-link::after {
+  content: " ›";
 }
 .source-paper {
   color: var(--text-muted);
 }
 
-.empty, .loading {
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 14px;
+}
+.empty-state a {
+  color: var(--river-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+.empty-state a::after {
+  content: " ›";
+}
+
+.loading {
+  color: var(--text-muted);
+  font-size: 14px;
   text-align: center;
   padding: 1.5rem 0;
 }
 
 #facility-map {
   height: 260px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 1rem;
   border: 1px solid var(--border);
 }
 .leaflet-popup-content {
-  font-size: 0.85rem;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.6;
 }
 .leaflet-popup-content b {
   display: block;
   margin-bottom: 0.2rem;
+  color: var(--river-deep);
 }
 
 .facility-type-group {
   margin-bottom: 1.1rem;
 }
 .facility-type-group h3 {
-  font-size: 0.85rem;
+  font-family: sans-serif;
+  font-size: 13px;
   color: var(--text-muted);
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
 }
 
+/* --- 施設カード：塗りなし・手描き風輪郭のみ --- */
 .facility-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.7rem 0.9rem;
-  margin-bottom: 0.5rem;
+  position: relative;
+  margin-bottom: 12px;
 }
-.facility-card .fname {
-  font-weight: 600;
-  font-size: 0.92rem;
+.facility-card-outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
-.favorite-btn {
-  border: none;
-  background: transparent;
+.facility-card-body {
+  position: relative;
+  z-index: 1;
+  padding: 12px 16px;
+}
+.facility-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.facility-head-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.5rem;
+}
+.fname {
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--river-deep);
+}
+.support-name {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.chevron {
+  color: var(--text-muted);
   font-size: 1.1rem;
-  line-height: 1;
-  padding: 0;
-  margin-right: 0.3rem;
-  vertical-align: middle;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.address {
+  margin-top: 0.3rem;
   color: var(--text-muted);
-  -webkit-tap-highlight-color: transparent;
+  font-size: 14px;
 }
-.favorite-btn.is-active {
-  color: #e0a800;
-}
-.facility-card .support-name {
-  color: var(--text-muted);
-  font-size: 0.78rem;
-  margin-left: 0.3rem;
-}
-.facility-card .address {
-  margin-top: 0.2rem;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
-.facility-card .programs {
-  margin-top: 0.4rem;
-  font-size: 0.82rem;
+.programs {
+  margin-top: 0.5rem;
+  font-size: 14px;
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
-.facility-card .program-row .label {
+.program-row .label {
   color: var(--text-muted);
   display: inline-block;
   width: 5.2em;
 }
-.facility-card .phone {
+.phone {
+  margin-top: 0.5rem;
+  font-size: 14px;
+}
+.phone a {
+  color: var(--river-deep);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.source {
   margin-top: 0.4rem;
-  font-size: 0.82rem;
+  font-size: 14px;
 }
-.facility-card .phone a {
-  color: var(--accent);
+.source a {
+  color: var(--river-deep);
   text-decoration: none;
+  font-weight: 600;
 }
-.facility-card .source {
-  margin-top: 0.3rem;
-  font-size: 0.82rem;
+.source a::after {
+  content: " ›";
 }
-.facility-card .source a {
-  color: var(--accent);
-  text-decoration: none;
-}
-.facility-card .source-note {
-  margin-top: 0.3rem;
+.source-note {
+  margin-top: 0.4rem;
   color: var(--text-muted);
-  font-size: 0.78rem;
+  font-size: 14px;
 }
-.facility-card .community-tip {
-  margin-top: 0.3rem;
-  padding: 0.4rem 0.5rem;
-  background: var(--accent-bg);
-  border-radius: 8px;
-  font-size: 0.8rem;
-  line-height: 1.4;
+.community-tip {
+  margin-top: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--mtn-pale);
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--mtn-deep);
 }
-.facility-card .community-tip a {
-  color: var(--accent);
+.community-tip a {
+  color: var(--mtn-deep);
   text-decoration: none;
+  font-weight: 600;
+}
+
+.favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card-bg);
+  font-size: 14px;
+  min-height: 44px;
+  padding: 0.3rem 0.8rem;
+  color: var(--text-muted);
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.favorite-btn .star {
+  font-size: 1.05rem;
+}
+.favorite-btn.is-active {
+  color: #a6790a;
+  border-color: #a6790a;
+  background: #fff8e8;
 }
 
 .footer {
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 13px;
   margin-top: 2rem;
 }
