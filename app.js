@@ -117,7 +117,8 @@ const WEEKDAY_RANGE_ORDER = ["月", "火", "水", "木", "金", "土", "日"];
 function parseWeekdaySet(str) {
   const days = new Set();
   if (!str) return days;
-  const cleaned = str.replace(/曜/g, "");
+  // 「（毎週水曜休み等）」のような補足の丸カッコ書き（全角・半角）は曜日抽出の対象から除く
+  const cleaned = str.replace(/[（(][^）)]*[）)]/g, "").replace(/曜/g, "");
   for (const part of cleaned.split("・")) {
     if (!part) continue;
     if (part.includes("〜")) {
@@ -125,7 +126,13 @@ function parseWeekdaySet(str) {
       const fromIdx = WEEKDAY_RANGE_ORDER.indexOf(from);
       const toIdx = WEEKDAY_RANGE_ORDER.indexOf(to);
       if (fromIdx >= 0 && toIdx >= 0) {
-        for (let i = fromIdx; i <= toIdx; i++) days.add(WEEKDAY_RANGE_ORDER[i]);
+        if (fromIdx <= toIdx) {
+          for (let i = fromIdx; i <= toIdx; i++) days.add(WEEKDAY_RANGE_ORDER[i]);
+        } else {
+          // 週をまたぐ範囲（例：木〜火 = 木・金・土・日・月・火）
+          for (let i = fromIdx; i < 7; i++) days.add(WEEKDAY_RANGE_ORDER[i]);
+          for (let i = 0; i <= toIdx; i++) days.add(WEEKDAY_RANGE_ORDER[i]);
+        }
       }
     } else if (WEEKDAY_RANGE_ORDER.includes(part)) {
       days.add(part);
@@ -136,7 +143,7 @@ function parseWeekdaySet(str) {
 
 function facilityOpenWeekdays(f) {
   const days = new Set();
-  for (const raw of [f.furea_day, f.sono_day, f.sodan_day]) {
+  for (const raw of [f.furea_day, f.sono_day, f.sodan_day, f.kaikan_day]) {
     for (const d of parseWeekdaySet(raw)) days.add(d);
   }
   return days;
@@ -284,7 +291,7 @@ const TYPE_COLOR = {
   "私立": "#e8836b",
   "公立": "#4a90a4",
   "公民館": "#f0a500",
-  "支援センター": "#8e44ad",
+  "公共の遊び場": "#8e44ad",
 };
 
 function renderMap(facilities) {
@@ -319,11 +326,11 @@ function renderMap(facilities) {
   map.fitBounds(group.getBounds().pad(0.15));
 }
 
-// 市の公式お知らせと同じ並び順（支援センター→保育園・幼稚園→公民館）に揃える。
+// 市の公式お知らせと同じ並び順（公共の遊び場→保育園・幼稚園→公民館）に揃える。
 // 私立・公立は「保育園・幼稚園」として統合表示する。
-const FACILITY_GROUP_ORDER = ["支援センター", "保育園・幼稚園", "公民館"];
+const FACILITY_GROUP_ORDER = ["公共の遊び場", "保育園・幼稚園", "公民館"];
 const FACILITY_GROUP_BADGE_CLASS = {
-  "支援センター": "type-support",
+  "公共の遊び場": "type-support",
   "保育園・幼稚園": "type-childcare",
   "公民館": "type-community",
 };
@@ -331,28 +338,14 @@ const FACILITY_GROUP_BADGE_CLASS = {
 function facilityGroupFor(type) {
   if (type === "私立" || type === "公立") return "保育園・幼稚園";
   if (type === "公民館") return "公民館";
-  // 支援センターおよび、それ以外の分類外の施設（だれでも広場等）はここに合流する。
-  // 施設一覧側では畳まずに常時表示するグループとして扱う（ACCORDION_GROUPS参照）。
-  return "支援センター";
+  // 公共の遊び場（子育て支援センター・キッズランド・だれでも広場等）はここに合流する
+  return "公共の遊び場";
 }
-
-// アコーディオン（折りたたみ）で表示するのはこの2グループのみ。
-// 支援センター種別・分類外の施設は件数が少なく無理にカテゴリ分けすると個別施設名と
-// 紛らわしいため、常時開いた状態でまとめて表示する。
-const ACCORDION_GROUPS = ["保育園・幼稚園", "公民館"];
-
-// 常時表示グループの見出しは、個別施設名（例：「渋川市子育て支援センター」）と
-// 紛らわしくない素っ気ない言葉にする。
-const FACILITY_GROUP_LABEL = {
-  "支援センター": "主要な施設",
-  "保育園・幼稚園": "保育園・幼稚園",
-  "公民館": "公民館",
-};
 
 // 色だけに頼らず種別を判別できるよう、各ラベルの先頭に添えるアイコン（Tabler Icons outline）。
 // stroke="currentColor"でラベルの文字色を継承する。
 const FACILITY_GROUP_ICON = {
-  "支援センター": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l18 0" /><path d="M9 8l1 0" /><path d="M9 12l1 0" /><path d="M9 16l1 0" /><path d="M14 8l1 0" /><path d="M14 12l1 0" /><path d="M14 16l1 0" /><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" /></svg>`,
+  "公共の遊び場": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l18 0" /><path d="M9 8l1 0" /><path d="M9 12l1 0" /><path d="M9 16l1 0" /><path d="M14 8l1 0" /><path d="M14 12l1 0" /><path d="M14 16l1 0" /><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" /></svg>`,
   "保育園・幼稚園": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>`,
   "公民館": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M21 21v-2a4 4 0 0 0 -3 -3.85" /></svg>`,
 };
@@ -361,11 +354,24 @@ function facilityGroupIcon(group) {
   return FACILITY_GROUP_ICON[group] || "";
 }
 
+// 「親子ふれあい保育」プログラムを実施している確認が取れなかった施設は、
+// 曜日・時間データが「開館時間_曜日/時間」に入っている。どちらにデータが
+// あるかでラベルを自動的に切り替える（両方に同時にデータが入ることは想定しない）。
+function primaryProgramRow(f) {
+  if (f.furea_day || f.furea_time) {
+    return programRow("ふれあい保育", f.furea_day, f.furea_time);
+  }
+  if (f.kaikan_day || f.kaikan_time) {
+    return programRow("開館時間", f.kaikan_day, f.kaikan_time);
+  }
+  return "";
+}
+
 function facilityCardHtml(f) {
   const displayName = escapeHtml(f.name);
   const subNames = [f.support_name, f.salon_name].filter(Boolean).map(escapeHtml).join(" / ");
   const programs = [
-    programRow("ふれあい保育", f.furea_day, f.furea_time),
+    primaryProgramRow(f),
     programRow("園庭開放", f.sono_day, f.sono_time),
     programRow("育児相談", f.sodan_day, f.sodan_time),
     programRow("こあらクラブ", f.koala_day, ""),
@@ -409,7 +415,7 @@ function facilityCardHtml(f) {
 }
 
 // カテゴリごとのアコーディオン開閉状態。初期状態はすべて閉じておく。
-const facilityAccordionOpen = { "支援センター": false, "保育園・幼稚園": false, "公民館": false };
+const facilityAccordionOpen = { "公共の遊び場": false, "保育園・幼稚園": false, "公民館": false };
 
 function renderFacilities(facilities, filterState) {
   const container = document.getElementById("facility-groups");
@@ -418,8 +424,19 @@ function renderFacilities(facilities, filterState) {
     const g = facilityGroupFor(f.type);
     (groups[g] ||= []).push(f);
   }
-  // 「保育園・幼稚園」は私立・公立を区別せず施設名順に混在させる
-  Object.values(groups).forEach((list) => list.sort((a, b) => a.name.localeCompare(b.name, "ja")));
+  // 「公共の遊び場」は施設マスタの「表示順」昇順（未設定は末尾）、それ以外は施設名順に並べる。
+  // 「保育園・幼稚園」は私立・公立を区別せず施設名順に混在させる。
+  Object.entries(groups).forEach(([group, list]) => {
+    if (group === "公共の遊び場") {
+      list.sort((a, b) => {
+        const orderA = a.display_order ?? Infinity;
+        const orderB = b.display_order ?? Infinity;
+        return orderA !== orderB ? orderA - orderB : a.name.localeCompare(b.name, "ja");
+      });
+    } else {
+      list.sort((a, b) => a.name.localeCompare(b.name, "ja"));
+    }
+  });
 
   const query = (filterState.search || "").trim();
   const hasActiveFilter = Boolean(query) || Boolean(filterState.type) || Boolean(filterState.favoriteOnly);
@@ -439,17 +456,8 @@ function renderFacilities(facilities, filterState) {
       if (list.length === 0) return "";
       const cards = list.map((f) => facilityCardHtml(f)).join("");
       const heading = `
-            <span class="facility-group-label">${facilityGroupIcon(type)}${FACILITY_GROUP_LABEL[type]}</span>
+            <span class="facility-group-label">${facilityGroupIcon(type)}${type}</span>
             <span class="facility-group-count">${list.length}件</span>`;
-
-      if (!ACCORDION_GROUPS.includes(type)) {
-        // 少数施設・分類外の施設は畳まず常時表示する
-        return `
-        <div class="facility-type-group">
-          <h3 class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">${heading}</h3>
-          <div class="facility-group-body">${cards}</div>
-        </div>`;
-      }
 
       // フィルター適用中は該当カテゴリを強制的に開き、結果を隠さない
       const isOpen = hasActiveFilter ? true : Boolean(facilityAccordionOpen[type]);

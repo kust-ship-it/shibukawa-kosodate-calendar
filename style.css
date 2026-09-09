@@ -429,23 +429,19 @@ main {
 .facility-type-group {
   margin-bottom: 1.1rem;
 }
-/* 要素+クラスで.type-badgeより詳細度を上げ、記述順に関わらずピル型の指定を確実に上書きする。
-   常時表示グループの見出し（h3）にも同じ帯状の見た目を適用する */
-summary.facility-group-summary,
-h3.facility-group-summary {
+/* 要素+クラスで.type-badgeより詳細度を上げ、記述順に関わらずピル型の指定を確実に上書きする */
+summary.facility-group-summary {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   width: 100%;
+  cursor: pointer;
   min-height: 44px;
   list-style: none;
   padding: 0.7rem 0.9rem;
   border-radius: 10px;
   margin: 0 0 0.6rem;
   -webkit-tap-highlight-color: transparent;
-}
-summary.facility-group-summary {
-  cursor: pointer;
 }
 summary.facility-group-summary::-webkit-details-marker {
   display: none;

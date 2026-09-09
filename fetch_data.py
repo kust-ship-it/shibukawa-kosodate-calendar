@@ -198,10 +198,13 @@ def build_facilities(client: Client) -> list[dict]:
                 "sodan_day": _rich_text(props, "育児相談_曜日"),
                 "sodan_time": _rich_text(props, "育児相談_時間"),
                 "koala_day": _rich_text(props, "こあらクラブ_曜日"),
+                "kaikan_day": _rich_text(props, "開館時間_曜日"),
+                "kaikan_time": _rich_text(props, "開館時間_時間"),
                 "source_url": _url(props, "情報源URL"),
                 "source_type": _select(props, "情報源種別"),
                 "lat": _number(props, "緯度"),
                 "lng": _number(props, "経度"),
+                "display_order": _number(props, "表示順"),
             }
         )
     facilities.sort(key=lambda f: (f["type"] or "", f["name"]))
