@@ -378,8 +378,8 @@ function facilityCardHtml(f) {
     </div>`;
 }
 
-// カテゴリごとのアコーディオン開閉状態。初期値は件数の少ない支援センターだけ開いておく。
-const facilityAccordionOpen = { "支援センター": true, "保育園・幼稚園": false, "公民館": false };
+// カテゴリごとのアコーディオン開閉状態。初期状態はすべて閉じておく。
+const facilityAccordionOpen = { "支援センター": false, "保育園・幼稚園": false, "公民館": false };
 
 function renderFacilities(facilities, filterState) {
   const container = document.getElementById("facility-groups");
