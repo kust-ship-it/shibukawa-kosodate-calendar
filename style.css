@@ -573,7 +573,8 @@ details[open] > summary.facility-group-summary::after {
 .program-row .label {
   color: var(--text-muted);
   display: inline-block;
-  width: 5.2em;
+  width: 6.2em;
+  white-space: nowrap;
 }
 .phone {
   margin-top: 0.5rem;
