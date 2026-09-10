@@ -193,14 +193,12 @@ function renderEvents(events, facilities, rangeKind, filters) {
     return true;
   });
 
-  // 日付ごとに1つの枠でくくり、その日の予定は件数によらず同じ書式で並べる
-  // （特定の施設・イベントだけを大きく見せる扱いの差をつけない）。
   const byDate = {};
   for (const e of filtered) {
     (byDate[e.date] ||= []).push(e);
   }
 
-  // 特別企画がない日でも「常時開いている施設」は選択肢に出す（施設フィルタ・地域イベントモード時は対象外）
+  // 施設フィルタ・地域イベントモード時は対象外
   const showOpenFacilities = filters.mode === "all" && !filters.facility;
 
   const entries = [];
@@ -328,7 +326,6 @@ function renderMap(facilities) {
   return { map, bounds };
 }
 
-// 市の公式お知らせと同じ並び順（公共の遊び場→保育園・幼稚園→公民館）に揃える。
 // 私立・公立は「保育園・幼稚園」として統合表示する。
 const FACILITY_GROUP_ORDER = ["公共の遊び場", "保育園・幼稚園", "公民館"];
 const FACILITY_GROUP_BADGE_CLASS = {
@@ -344,8 +341,7 @@ function facilityGroupFor(type) {
   return "公共の遊び場";
 }
 
-// 色だけに頼らず種別を判別できるよう、各ラベルの先頭に添えるアイコン（Tabler Icons outline）。
-// stroke="currentColor"でラベルの文字色を継承する。
+// アイコンはTabler Icons outline。stroke="currentColor"でラベルの文字色を継承する。
 const FACILITY_GROUP_ICON = {
   "公共の遊び場": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l18 0" /><path d="M9 8l1 0" /><path d="M9 12l1 0" /><path d="M9 16l1 0" /><path d="M14 8l1 0" /><path d="M14 12l1 0" /><path d="M14 16l1 0" /><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" /></svg>`,
   "保育園・幼稚園": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>`,
