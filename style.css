@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Yomogi&display=swap');
 
 :root {
-  --bg: #FDFBF6; /* 童話館風の暖かみを持たせたクリーム色（白に近いが白ではない） */
+  --bg: #FDFBF6; /* 暖かみを持たせたクリーム色（白に近いが白ではない） */
   --card-bg: #ffffff;
   --text: #3A2F28; /* グレー系ではなく焦げ茶系にし、暖かみを持たせる */
   --text-muted: #6B5D52; /* 焦げ茶系のトーンで揃えた補足テキスト用（--bg比 6.13:1） */
