@@ -1,24 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Yomogi&display=swap');
 
 :root {
-  --bg: #ffffff;
+  --bg: #FDFBF6; /* 童話館風の暖かみを持たせたクリーム色（白に近いが白ではない） */
   --card-bg: #ffffff;
-  --text: #333333;
-  --text-muted: #666666;
-  --border: #949494; /* #ccc は白背景で1.6:1しかなく非テキストUIの3:1基準を満たさないため濃くした */
+  --text: #3A2F28; /* グレー系ではなく焦げ茶系にし、暖かみを持たせる */
+  --text-muted: #6B5D52; /* 焦げ茶系のトーンで揃えた補足テキスト用（--bg比 6.13:1） */
+  --border: #8B7F70; /* 暖色系グレー。--bg比 3:1以上を確保 */
   --tab-inactive-bg: #f0ede8;
 
   /* 利根川（子育て支援） */
   --river-pale: #EAF2F5;   /* 塗り専用 */
-  --river-mid: #5C8A9B;    /* 非テキスト装飾専用（3:1は満たすが4.5:1は満たさない） */
-  --river-mid-text: #4C7381; /* 補足テキスト用。--river-mid を暗くして4.5:1を確保 */
   --river-deep: #3A5F6E;   /* 主要テキスト用。6:1以上 */
-  --river-highlight: #D8E9EE; /* ジャンプ到達時のハイライト専用。--river-paleより一段濃く、--text-muted(4.596:1)も確保 */
+  --river-highlight: #D8E9EE; /* ジャンプ到達時のハイライト専用。--river-paleより一段濃く、--text-muted比も確保 */
 
   /* 赤城山（イベント） */
   --mtn-pale: #EEF1EA;
-  --mtn-mid: #7B8C74;
-  --mtn-mid-text: #64715E;
   --mtn-deep: #4F5C49;
 
   --accent: var(--river-deep);
@@ -30,16 +26,18 @@
   --taupe-mid: #E8DFD2;
   --taupe-dark: #D3C4AE;
 
-  /* 施設種別ラベル：濃淡の序列ではなく明るさ・彩度を揃えた色相違いにし、
-     どれか一つが強く／重要に見えないようにする（コントラストは3色とも4.5:1以上） */
-  --type-support-bg: #DFE4E3;
+  /* 施設種別ラベル：塗りつぶしを使わない輪郭線のみの表現。濃淡の序列ではなく
+     明るさ・彩度を揃えた色相違いにし、どれか一つが強く／重要に見えないようにする
+     （コントラストは3色とも4.5:1以上） */
   --type-support-text: #4E6260;
-  --type-childcare-bg: #E8E2D4;
   --type-childcare-text: #6B6248;
-  --type-community-bg: #EFE4DC;
   --type-community-text: #7A5A44;
 
-  --divider: #e2ded8; /* 日付枠内の区切り線（塗り背景向けの柔らかい線） */
+  /* 「子育て支援」「イベント」の主役タグのみ塗りつぶしを使う */
+  --primary-support-bg: #2C6478;
+  --primary-event-bg: #5C7A3E;
+
+  --divider: #ECE3D4; /* 日付の区切りは面や罫線の主張を抑え、この細い罫線と余白だけで表現する */
 
   font-size: 16px;
 }
@@ -215,12 +213,9 @@ main {
   margin-bottom: 0.35rem;
 }
 
-/* --- カレンダー：日付ごとの枠（塗り）＋行。輪郭線は使わず塗りで表現 --- */
+/* --- カレンダー：日付ごとの枠。背景の塗りは使わず、細い罫線と余白だけで区切る --- */
 .date-group {
-  background: #F7F7F5;
-  border-radius: 10px;
-  margin-bottom: 0.75rem;
-  overflow: hidden;
+  margin-bottom: 1.1rem;
 }
 .date-group-header {
   padding: 0.5rem 0.9rem;
@@ -254,10 +249,22 @@ main {
 .event-dot.dot-community {
   background: var(--mtn-deep);
 }
+/* 「子育て支援」「イベント」は主役タグとして塗りつぶし＋白文字を使う（色を塗る面積は
+   ここだけに絞り、他のラベルは輪郭線のみにすることでにぎやかになりすぎないようにする） */
 .event-label {
-  font-size: 14px;
-  font-weight: 600;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
   flex-shrink: 0;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  color: #ffffff;
+}
+.event-label.label-official {
+  background: var(--primary-support-bg);
+}
+.event-label.label-community {
+  background: var(--primary-event-bg);
 }
 .event-title {
   font-size: 16px;
@@ -309,7 +316,8 @@ main {
 }
 
 .age-badge {
-  background: #ffffff;
+  background: transparent;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.1rem 0.6rem;
   color: var(--text);
@@ -464,25 +472,26 @@ details[open] > summary.facility-group-summary::after {
 .facility-group-body {
   padding-top: 0.6rem;
 }
+/* 施設種別ラベルは塗りつぶしを使わず、輪郭線のみの控えめな表現に統一する
+   （色を塗る面積を「子育て支援」「イベント」の主役タグだけに絞るため） */
 .type-badge {
   display: inline-block;
   font-family: sans-serif;
   font-size: 13px;
   font-weight: 600;
+  background: transparent;
+  border: 1px solid currentColor;
   margin: 0 0 0.6rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
 }
 .type-badge.type-support {
-  background: var(--type-support-bg);
   color: var(--type-support-text);
 }
 .type-badge.type-childcare {
-  background: var(--type-childcare-bg);
   color: var(--type-childcare-text);
 }
 .type-badge.type-community {
-  background: var(--type-community-bg);
   color: var(--type-community-text);
 }
 .type-badge-inline {

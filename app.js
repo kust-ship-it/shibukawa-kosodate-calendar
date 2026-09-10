@@ -246,7 +246,7 @@ function renderEvents(events, facilities, rangeKind, filters) {
 function eventRow(e) {
   const isOfficial = e.badge === "子育て支援";
   const dotClass = isOfficial ? "dot-official" : "dot-community";
-  const labelColor = isOfficial ? "var(--river-mid-text)" : "var(--mtn-mid-text)";
+  const labelClass = isOfficial ? "label-official" : "label-community";
   const titleColor = isOfficial ? "var(--river-deep)" : "var(--mtn-deep)";
   const placeLine = isOfficial
     ? e.facility_name
@@ -267,7 +267,7 @@ function eventRow(e) {
     <div class="event-row">
       <div class="event-row-main">
         <span class="event-dot ${dotClass}" aria-hidden="true"></span>
-        <span class="event-label" style="color:${labelColor}">${escapeHtml(e.label || e.badge)}</span>
+        <span class="event-label ${labelClass}">${escapeHtml(e.label || e.badge)}</span>
         <span class="event-title hw" style="color:${titleColor}">${escapeHtml(e.title)}</span>
       </div>
       ${
