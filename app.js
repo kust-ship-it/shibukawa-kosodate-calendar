@@ -323,8 +323,9 @@ function renderMap(facilities) {
   });
 
   const group = L.featureGroup(markers);
-  map.fitBounds(group.getBounds().pad(0.15));
-  return map;
+  const bounds = group.getBounds().pad(0.15);
+  map.fitBounds(bounds);
+  return { map, bounds };
 }
 
 // 市の公式お知らせと同じ並び順（公共の遊び場→保育園・幼稚園→公民館）に揃える。
@@ -506,20 +507,24 @@ async function main() {
   const rerenderFacilities = () => renderFacilities(data.facilities, facilityFilterState);
 
   rerender();
-  const map = renderMap(data.facilities);
+  const mapResult = renderMap(data.facilities);
   rerenderFacilities();
   populateFacilityFilter(data.events);
 
   // 「予定を見る」／「施設をさがす」の画面切り替え。
-  // 地図は非表示（display:none）の間に初期化されているため、施設タブを開くたびに
-  // invalidateSize()でLeafletにコンテナサイズを再計算させないと表示が崩れる。
+  // 地図は非表示（display:none）の間に初期化されているため、コンテナサイズが0で
+  // fitBoundsのズーム計算が狂い、世界地図表示になってしまう。施設タブを開くたびに
+  // invalidateSize()でサイズを再認識させたうえで、同じ範囲へfitBoundsをやり直す。
   function switchView(name) {
     document.getElementById("view-tab-events").classList.toggle("is-active", name === "events");
     document.getElementById("view-tab-facilities").classList.toggle("is-active", name === "facilities");
     document.getElementById("panel-events").classList.toggle("is-active", name === "events");
     document.getElementById("panel-facilities").classList.toggle("is-active", name === "facilities");
-    if (name === "facilities" && map) {
-      requestAnimationFrame(() => map.invalidateSize());
+    if (name === "facilities" && mapResult) {
+      requestAnimationFrame(() => {
+        mapResult.map.invalidateSize();
+        mapResult.map.fitBounds(mapResult.bounds);
+      });
     }
   }
   document.getElementById("view-tab-events").addEventListener("click", () => switchView("events"));
