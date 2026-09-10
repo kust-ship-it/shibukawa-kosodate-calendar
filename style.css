@@ -83,6 +83,53 @@ main {
 .section {
   margin-top: 1.5rem;
 }
+
+/* --- 画面切り替え（予定を見る／施設をさがす）。手描き風の演出は既存のタブと
+   同じ波線の下線のみを流用し、新しい装飾は加えない --- */
+.view-switch {
+  display: flex;
+  gap: 24px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--divider);
+}
+.view-tab {
+  position: relative;
+  border: none;
+  background: none;
+  padding: 0.6rem 0.1rem;
+  min-height: 44px;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.view-tab.is-active {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text);
+}
+.view-tab .wavy-underline {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 0;
+  width: calc(100% + 8px);
+  height: 8px;
+  visibility: hidden;
+}
+.view-tab.is-active .wavy-underline {
+  visibility: visible;
+}
+
+.view-panel {
+  display: none;
+  margin-top: 1.1rem;
+}
+.view-panel.is-active {
+  display: block;
+}
 .section h2 {
   font-size: 1.15rem;
   margin: 0 0 0.6rem;
@@ -340,12 +387,20 @@ main {
   color: var(--text-muted);
   font-size: 14px;
 }
-.empty-state a {
+.empty-state a,
+.empty-state-link {
+  appearance: none;
+  border: none;
+  background: none;
+  font: inherit;
   color: var(--river-deep);
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.empty-state a::after {
+.empty-state a::after,
+.empty-state-link::after {
   content: " ›";
 }
 

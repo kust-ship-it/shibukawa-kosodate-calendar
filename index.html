@@ -14,9 +14,21 @@
   <p class="lead">渋川市の子育て支援センター・子育てサロン・寄せられたイベント情報を一覧できます。</p>
 </header>
 
+<div class="view-switch hw" role="tablist">
+  <button class="view-tab is-active" id="view-tab-events">予定を見る
+    <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <button class="view-tab" id="view-tab-facilities">施設をさがす
+    <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
 <main>
-  <section class="section">
-    <h2 class="hw">特別企画カレンダー</h2>
+  <section class="view-panel is-active" id="panel-events">
     <div class="mode-switch" role="group" aria-label="表示の切り替え">
       <button class="mode-btn is-active" data-mode="all">すべて</button>
       <button class="mode-btn" data-mode="favorite">お気に入り</button>
@@ -67,8 +79,7 @@
     </div>
   </section>
 
-  <section class="section" id="facility-section">
-    <h2 class="hw">実施施設</h2>
+  <section class="view-panel" id="panel-facilities">
     <div id="facility-map"></div>
     <div class="facility-search-controls">
       <input type="search" id="facility-search" class="facility-search-input" placeholder="施設名でさがす" aria-label="施設名でさがす">

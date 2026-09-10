@@ -93,7 +93,7 @@ function toggleFavorite(name) {
 function emptyState() {
   return `<div class="empty-state">
     <p>この条件に当てはまる予定はまだありません。</p>
-    <a href="#facility-section">日頃から利用できる施設をさがす</a>
+    <button type="button" class="empty-state-link" data-goto-facilities>日頃から利用できる施設をさがす</button>
   </div>`;
 }
 
@@ -299,7 +299,7 @@ function renderMap(facilities) {
   const points = facilities.filter((f) => typeof f.lat === "number" && typeof f.lng === "number");
   if (points.length === 0 || typeof L === "undefined") {
     el.style.display = "none";
-    return;
+    return null;
   }
 
   const map = L.map(el, { scrollWheelZoom: false });
@@ -324,6 +324,7 @@ function renderMap(facilities) {
 
   const group = L.featureGroup(markers);
   map.fitBounds(group.getBounds().pad(0.15));
+  return map;
 }
 
 // 市の公式お知らせと同じ並び順（公共の遊び場→保育園・幼稚園→公民館）に揃える。
@@ -505,9 +506,24 @@ async function main() {
   const rerenderFacilities = () => renderFacilities(data.facilities, facilityFilterState);
 
   rerender();
-  renderMap(data.facilities);
+  const map = renderMap(data.facilities);
   rerenderFacilities();
   populateFacilityFilter(data.events);
+
+  // 「予定を見る」／「施設をさがす」の画面切り替え。
+  // 地図は非表示（display:none）の間に初期化されているため、施設タブを開くたびに
+  // invalidateSize()でLeafletにコンテナサイズを再計算させないと表示が崩れる。
+  function switchView(name) {
+    document.getElementById("view-tab-events").classList.toggle("is-active", name === "events");
+    document.getElementById("view-tab-facilities").classList.toggle("is-active", name === "facilities");
+    document.getElementById("panel-events").classList.toggle("is-active", name === "events");
+    document.getElementById("panel-facilities").classList.toggle("is-active", name === "facilities");
+    if (name === "facilities" && map) {
+      requestAnimationFrame(() => map.invalidateSize());
+    }
+  }
+  document.getElementById("view-tab-events").addEventListener("click", () => switchView("events"));
+  document.getElementById("view-tab-facilities").addEventListener("click", () => switchView("facilities"));
 
   document.querySelectorAll(".tab").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -571,6 +587,8 @@ async function main() {
     const facility = data.facilities.find((f) => f.id === facilityId);
     if (!facility) return;
 
+    switchView("facilities");
+
     facilityFilterState.search = "";
     document.getElementById("facility-search").value = "";
     facilityFilterState.type = "";
@@ -593,6 +611,10 @@ async function main() {
   }
 
   document.getElementById("event-list").addEventListener("click", (e) => {
+    if (e.target.closest("[data-goto-facilities]")) {
+      switchView("facilities");
+      return;
+    }
     const target = e.target.closest("[data-facility-id]");
     if (!target) return;
     jumpToFacility(target.dataset.facilityId);
