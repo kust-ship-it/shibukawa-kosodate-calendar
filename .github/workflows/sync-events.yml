@@ -22,7 +22,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Sync new events into Notion (未確認として仮登録)
+      - name: Sync new salon events into Notion (未確認として仮登録)
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: python sync_events.py --apply
+
+      - name: Sync new city event listings into Notion (未確認として仮登録)
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: python sync_city_events.py --apply
