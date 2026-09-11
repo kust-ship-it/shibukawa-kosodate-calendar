@@ -52,7 +52,7 @@ body {
 }
 .header h1 {
   margin: 0 0 0.25rem;
-  font-size: 1.4rem;
+  font-size: 22px;
   color: var(--river-deep);
 }
 .header .lead {
@@ -197,7 +197,7 @@ main {
   background: var(--river-pale);
 }
 .week-day-label {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 .week-day.is-active .week-day-label,
@@ -265,7 +265,7 @@ main {
 }
 .event-label {
   display: inline-block;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
   padding: 0.15rem 0.6rem;
@@ -291,7 +291,7 @@ main {
   align-items: center;
   gap: 0.875rem;
   flex-wrap: wrap;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
 }
 .event-place {
@@ -307,7 +307,7 @@ main {
   margin-top: 1.1rem;
 }
 .upcoming h3 {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 600;
   margin: 0 0 0.5rem;
@@ -376,7 +376,7 @@ main {
   border-radius: 999px;
   background: var(--card-bg);
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
   -webkit-tap-highlight-color: transparent;
 }
 .age-filter-btn.is-active {
@@ -495,7 +495,7 @@ main {
 }
 .open-facilities-label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
@@ -510,6 +510,7 @@ main {
   border: none;
   background: none;
   font: inherit;
+  font-size: 13px;
   color: var(--river-deep);
   font-weight: 600;
   cursor: pointer;
@@ -525,7 +526,7 @@ main {
   border: 1px solid var(--divider);
   border-radius: 999px;
   padding: 0.1rem 0.6rem;
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
@@ -596,7 +597,7 @@ main {
   border-radius: 999px;
   background: var(--card-bg);
   color: var(--text);
-  font-size: 14px;
+  font-size: 13px;
   -webkit-tap-highlight-color: transparent;
 }
 .facility-type-chip.is-active {
@@ -613,7 +614,7 @@ main {
   border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
-  font-size: 14px;
+  font-size: 13px;
   min-height: 40px;
   padding: 0.3rem 0.8rem;
   color: var(--text-muted);
@@ -649,7 +650,7 @@ summary.facility-group-summary::after {
   display: inline-block;
   margin-left: auto;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--group-color);
   transform: rotate(0deg);
   transition: transform 0.15s ease;
@@ -718,7 +719,7 @@ details[open] > summary.facility-group-summary::after {
 }
 .fname {
   font-weight: 400;
-  font-size: 19px;
+  font-size: 18px;
   color: var(--river-deep);
 }
 .support-name {
@@ -728,11 +729,11 @@ details[open] > summary.facility-group-summary::after {
 .address {
   margin-top: 0.3rem;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 .programs {
   margin-top: 0.5rem;
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
@@ -745,7 +746,7 @@ details[open] > summary.facility-group-summary::after {
 }
 .phone {
   margin-top: 0.5rem;
-  font-size: 14px;
+  font-size: 13px;
 }
 .phone a {
   color: var(--river-deep);
@@ -757,7 +758,7 @@ details[open] > summary.facility-group-summary::after {
 }
 .source {
   margin-top: 0.4rem;
-  font-size: 14px;
+  font-size: 13px;
 }
 .source a {
   color: var(--river-deep);
@@ -770,7 +771,7 @@ details[open] > summary.facility-group-summary::after {
 .source-note {
   margin-top: 0.4rem;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 .community-tip {
   margin-top: 0.4rem;
@@ -794,7 +795,7 @@ details[open] > summary.facility-group-summary::after {
   border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
-  font-size: 11.5px;
+  font-size: 13px;
   min-height: 30px;
   padding: 0.25rem 0.6rem;
   color: var(--text-muted);
