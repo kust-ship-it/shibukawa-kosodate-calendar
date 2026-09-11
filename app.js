@@ -24,32 +24,6 @@ function formatDateLabel(s) {
   return `${d.getMonth() + 1}/${d.getDate()}（${WEEKDAY_JA[d.getDay()]}）`;
 }
 
-function rangeFor(kind) {
-  const today = dateFromStr(todayStr());
-  if (kind === "today") {
-    return [today, today];
-  }
-  if (kind === "week") {
-    // 月曜始まり
-    const dow = today.getDay(); // 0=日
-    const mondayOffset = dow === 0 ? -6 : 1 - dow;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + mondayOffset);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    return [monday, sunday];
-  }
-  // month
-  const first = new Date(today.getFullYear(), today.getMonth(), 1);
-  const last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  return [first, last];
-}
-
-function inRange(dateStr, [start, end]) {
-  const d = dateFromStr(dateStr);
-  return d >= start && d <= end;
-}
-
 function renderSource(source) {
   if (!source) return "";
   if (source.startsWith("http")) {
@@ -90,11 +64,8 @@ function toggleFavorite(name) {
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favs));
 }
 
-function emptyState() {
-  return `<div class="empty-state">
-    <p>この条件に当てはまる予定はまだありません。</p>
-    <button type="button" class="empty-state-link" data-goto-facilities>日頃から利用できる施設をさがす</button>
-  </div>`;
+function emptyMessage(text) {
+  return `<div class="empty-state"><p>${escapeHtml(text)}</p></div>`;
 }
 
 const AGE_LABELS = {
@@ -176,71 +147,6 @@ function openFacilitiesRow(list, hasEventsAbove) {
     </div>`;
 }
 
-function renderEvents(events, facilities, rangeKind, filters) {
-  const container = document.getElementById("event-list");
-  const range = rangeFor(rangeKind);
-  const favorites = getFavorites();
-  const filtered = events.filter((e) => {
-    if (!inRange(e.date, range)) return false;
-    if (filters.facility && e.facility_name !== filters.facility) return false;
-    if (filters.age && e.age !== filters.age) return false;
-    if (filters.mode === "favorite") {
-      return e.badge === "子育て支援" && favorites.includes(e.facility_name);
-    }
-    if (filters.mode === "event") {
-      return e.badge === "イベント";
-    }
-    return true;
-  });
-
-  const byDate = {};
-  for (const e of filtered) {
-    (byDate[e.date] ||= []).push(e);
-  }
-
-  // 施設フィルタ・地域イベントモード時は対象外
-  const showOpenFacilities = filters.mode === "all" && !filters.facility;
-
-  const entries = [];
-  if (showOpenFacilities) {
-    const [start, end] = range;
-    const cursor = new Date(start);
-    while (cursor <= end) {
-      const date = toIsoDate(cursor);
-      const dayEvents = byDate[date] || [];
-      const officialIds = new Set(
-        dayEvents.filter((e) => e.badge === "子育て支援" && e.facility_id).map((e) => e.facility_id)
-      );
-      const openFacilities = facilitiesOpenOn(date, facilities, officialIds);
-      if (dayEvents.length > 0 || openFacilities.length > 0) {
-        entries.push({ date, dayEvents, openFacilities });
-      }
-      cursor.setDate(cursor.getDate() + 1);
-    }
-  } else {
-    for (const date of Object.keys(byDate).sort()) {
-      entries.push({ date, dayEvents: byDate[date], openFacilities: [] });
-    }
-  }
-
-  if (entries.length === 0) {
-    container.innerHTML = emptyState();
-    return;
-  }
-
-  container.innerHTML = entries
-    .map(({ date, dayEvents, openFacilities }) => {
-      const rows = dayEvents.map((e) => eventRow(e)).join("");
-      return `
-        <div class="date-group">
-          <div class="date-group-header">${escapeHtml(formatDateLabel(date))}</div>
-          ${rows ? `<div class="date-group-body">${rows}</div>` : ""}
-          ${openFacilitiesRow(openFacilities, Boolean(rows))}
-        </div>`;
-    })
-    .join("");
-}
-
 function eventRow(e) {
   const isOfficial = e.badge === "子育て支援";
   const dotClass = isOfficial ? "dot-official" : "dot-community";
@@ -260,24 +166,160 @@ function eventRow(e) {
   const placeTag = isJumpable
     ? `<button type="button" class="${placeClass} facility-jump-chip" data-facility-id="${escapeHtml(e.facility_id)}">${placeIcon}${escapeHtml(placeLine)}</button>`
     : `<span class="${placeClass}">${placeIcon}${escapeHtml(placeLine)}</span>`;
-  const hasMeta = Boolean(placeLine || e.age || e.source);
+  const hasMeta = Boolean(placeLine || e.source);
   return `
     <div class="event-row">
       <div class="event-row-main">
         <span class="event-dot ${dotClass}" aria-hidden="true"></span>
         <span class="event-label ${labelClass}">${escapeHtml(e.label || e.badge)}</span>
-        <span class="event-title hw" style="color:${titleColor}">${escapeHtml(e.title)}</span>
+        ${ageBadge(e.age)}
       </div>
+      <span class="event-title hw" style="color:${titleColor}">${escapeHtml(e.title)}</span>
       ${
         hasMeta
           ? `<div class="event-row-meta">
         ${placeLine ? placeTag : ""}
-        ${ageBadge(e.age)}
         ${renderSource(e.source)}
       </div>`
           : ""
       }
     </div>`;
+}
+
+function dayCardHtml(dateStr, dayEvents, openFacilities) {
+  const rows = dayEvents.map((e) => eventRow(e)).join("");
+  const isEmpty = dayEvents.length === 0 && openFacilities.length === 0;
+  return `
+    <div class="day-card">
+      <div class="day-card-date hw">${escapeHtml(formatDateLabel(dateStr))}</div>
+      ${
+        isEmpty
+          ? emptyMessage("この条件に当てはまる予定はまだありません。")
+          : `${rows}${openFacilitiesRow(openFacilities, Boolean(rows))}`
+      }
+    </div>`;
+}
+
+function upcomingHtml(effectiveDate, events) {
+  const upcoming = events
+    .filter((e) => e.date > effectiveDate)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 4);
+  if (upcoming.length === 0) return "";
+  const rows = upcoming
+    .map((e) => {
+      const isOfficial = e.badge === "子育て支援";
+      const placeText = isOfficial ? e.facility_name : [e.organizer, e.location].filter(Boolean).join(" ／ ");
+      return `
+        <div class="upcoming-row">
+          <span class="upcoming-date">${escapeHtml(formatDateLabel(e.date))}</span>
+          <span class="upcoming-body">
+            <span class="upcoming-title">${escapeHtml(e.title)}</span>
+            ${placeText ? `<span class="upcoming-place">${escapeHtml(placeText)}</span>` : ""}
+          </span>
+        </div>`;
+    })
+    .join("");
+  return `<div class="upcoming"><h3>今後の予定</h3>${rows}</div>`;
+}
+
+function weekStripHtml(today, todayIso, effectiveDate, events, selectedDate) {
+  const weekEndIso = toIsoDate(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 6));
+  const outsideWeek = selectedDate && (selectedDate < todayIso || selectedDate > weekEndIso);
+  const anchor = outsideWeek ? dateFromStr(selectedDate) : today;
+  const days = [];
+  for (let n = 0; n < 7; n++) {
+    const d = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate() + n);
+    const isoDate = toIsoDate(d);
+    const active = effectiveDate === isoDate;
+    const isToday = isoDate === todayIso;
+    const hasEvent = events.some((e) => e.date === isoDate);
+    days.push(`
+      <button type="button" class="week-day${active ? " is-active" : ""}${isToday ? " is-today" : ""}" data-select-date="${isoDate}">
+        <span class="week-day-label">${isToday ? "今日" : WEEKDAY_JA[d.getDay()]}</span>
+        <span class="week-day-num${isToday ? " hw" : ""}">${d.getDate()}</span>
+        <span class="week-day-dot" style="visibility:${hasEvent ? "visible" : "hidden"}"></span>
+      </button>`);
+  }
+  return `<div class="week-strip" role="tablist" aria-label="日付を選ぶ">${days.join("")}</div>`;
+}
+
+function categoryChipsHtml(category) {
+  const cats = [
+    { key: "子育て支援", color: "var(--primary-support-bg)" },
+    { key: "イベント", color: "var(--primary-event-bg)" },
+  ];
+  return cats
+    .map((c) => {
+      const active = category === c.key;
+      return `<button type="button" class="category-chip${active ? " is-active" : ""}" data-select-category="${escapeHtml(c.key)}" style="--chip-color:${c.color}">${escapeHtml(c.key)}</button>`;
+    })
+    .join("");
+}
+
+function ageChipsHtml(age) {
+  return Object.entries(AGE_LABELS)
+    .map(([raw, label]) => {
+      const active = age === raw;
+      return `<button type="button" class="age-filter-btn${active ? " is-active" : ""}" data-select-age="${escapeHtml(raw)}">${escapeHtml(label)}</button>`;
+    })
+    .join("");
+}
+
+function monthGridHtml(monthDate, events, effectiveDate, todayIso, matchesCommon) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const leading = (firstDay.getDay() + 6) % 7; // 月曜始まり
+  const totalCells = Math.ceil((leading + daysInMonth) / 7) * 7;
+  const headers = WEEKDAY_RANGE_ORDER.map((w) => `<div class="weekday-header">${w}</div>`).join("");
+  const cells = [];
+  for (let i = 0; i < totalCells; i++) {
+    const dayNum = i - leading + 1;
+    if (dayNum < 1 || dayNum > daysInMonth) {
+      cells.push(`<div class="calendar-cell is-empty" aria-hidden="true"></div>`);
+      continue;
+    }
+    const cellDate = new Date(year, month, dayNum);
+    const isoDate = toIsoDate(cellDate);
+    const isToday = isoDate === todayIso;
+    const isSelected = effectiveDate === isoDate;
+    const hasEvent = events.some((e) => e.date === isoDate && matchesCommon(e));
+    cells.push(`
+      <button type="button" class="calendar-cell${isToday ? " is-today" : ""}${isSelected ? " is-selected" : ""}" data-select-date="${isoDate}">
+        <span class="calendar-cell-num">${dayNum}</span>
+        <span class="calendar-cell-dot" style="visibility:${hasEvent ? "visible" : "hidden"}"></span>
+      </button>`);
+  }
+  return `
+    <div class="weekday-headers">${headers}</div>
+    <div class="calendar-grid">${cells.join("")}</div>`;
+}
+
+function searchResultsHtml(monthDate, events, matchesCommon) {
+  const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+  const matches = events.filter((e) => {
+    const d = dateFromStr(e.date);
+    return d >= monthStart && d <= monthEnd && matchesCommon(e);
+  });
+  if (matches.length === 0) {
+    return emptyMessage("この条件に当てはまる予定はまだありません。");
+  }
+  const byDate = {};
+  for (const e of matches) (byDate[e.date] ||= []).push(e);
+  return Object.keys(byDate)
+    .sort()
+    .map((date) => {
+      const rows = byDate[date].map((e) => eventRow(e)).join("");
+      return `
+        <div class="search-result-group">
+          <button type="button" class="search-result-date hw" data-jump-date="${date}">${escapeHtml(formatDateLabel(date))}</button>
+          ${rows}
+        </div>`;
+    })
+    .join("");
 }
 
 function programRow(label, day, time) {
@@ -477,35 +519,94 @@ function renderFacilities(facilities, filterState) {
   });
 }
 
-function populateFacilityFilter(events) {
-  const select = document.getElementById("facility-filter");
-  const names = [...new Set(events.map((e) => e.facility_name).filter(Boolean))].sort((a, b) =>
-    a.localeCompare(b, "ja")
-  );
-  select.innerHTML =
-    `<option value="">すべての施設</option>` +
-    names.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
-}
-
 async function main() {
   const res = await fetch("data.json", { cache: "no-store" });
   const data = await res.json();
 
-  const state = { range: "today", facility: "", age: "", mode: "all" };
-  const rerender = () =>
-    renderEvents(data.events, data.facilities, state.range, {
-      facility: state.facility,
-      age: state.age,
-      mode: state.mode,
+  const eventsState = {
+    displayMode: "list", // "list" | "calendar"
+    selectedDate: null, // null = 当日
+    monthOffset: 0,
+    category: "",
+    age: "",
+    legendOpen: false,
+  };
+
+  function matchesCommon(e) {
+    if (eventsState.category && e.badge !== eventsState.category) return false;
+    if (eventsState.age && e.age !== eventsState.age) return false;
+    return true;
+  }
+
+  function renderEventsPanel() {
+    const container = document.getElementById("events-panel-body");
+    const today = dateFromStr(todayStr());
+    const todayIso = todayStr();
+    const effectiveDate = eventsState.selectedDate || todayIso;
+    const hasActiveFilter = Boolean(eventsState.category) || Boolean(eventsState.age);
+
+    const legendHtml = `
+      <details class="legend"${eventsState.legendOpen ? " open" : ""}>
+        <summary>見方のご案内</summary>
+        <ul><li>情報源が📄のものはリンクがなく、紙のおたより等が元になっています</li></ul>
+      </details>`;
+
+    const dayCardFor = (dateStr) => {
+      const dayEvents = data.events.filter((e) => e.date === dateStr && matchesCommon(e));
+      const officialIds = new Set(
+        dayEvents.filter((e) => e.badge === "子育て支援" && e.facility_id).map((e) => e.facility_id)
+      );
+      // 絞り込み中は「ほかに開いている場所」を出さない
+      const openFacilities = hasActiveFilter ? [] : facilitiesOpenOn(dateStr, data.facilities, officialIds);
+      return dayCardHtml(dateStr, dayEvents, openFacilities);
+    };
+
+    let body;
+    if (eventsState.displayMode === "list") {
+      body = `
+        ${legendHtml}
+        ${weekStripHtml(today, todayIso, effectiveDate, data.events, eventsState.selectedDate)}
+        <div class="week-strip-links">
+          <button type="button" class="link-btn" data-show-calendar>月間カレンダーで見る</button>
+          ${effectiveDate !== todayIso ? `<button type="button" class="link-btn is-muted" data-today-link>今日に戻る</button>` : ""}
+        </div>
+        ${dayCardFor(effectiveDate)}
+        ${upcomingHtml(effectiveDate, data.events)}`;
+    } else {
+      const monthDate = new Date(today.getFullYear(), today.getMonth() + eventsState.monthOffset, 1);
+      const mainSection = hasActiveFilter
+        ? searchResultsHtml(monthDate, data.events, matchesCommon)
+        : dayCardFor(effectiveDate);
+      body = `
+        <div class="filters">
+          <div class="chip-row">${categoryChipsHtml(eventsState.category)}</div>
+          <div class="chip-row">${ageChipsHtml(eventsState.age)}</div>
+          ${hasActiveFilter ? `<button type="button" class="link-btn is-muted" data-clear-filters>絞り込みを解除</button>` : ""}
+        </div>
+        <div class="month-nav">
+          <button type="button" class="month-nav-btn" data-prev-month aria-label="前の月">‹</button>
+          <span class="month-label hw">${monthDate.getFullYear()}年${monthDate.getMonth() + 1}月</span>
+          <button type="button" class="month-nav-btn" data-next-month aria-label="次の月">›</button>
+        </div>
+        ${monthGridHtml(monthDate, data.events, effectiveDate, todayIso, matchesCommon)}
+        <button type="button" class="link-btn" data-show-list>週間ビューに戻る</button>
+        <div style="margin-top: 1rem;">${mainSection}</div>`;
+    }
+
+    container.innerHTML = body;
+    container.querySelectorAll("details.legend").forEach((el) => {
+      el.addEventListener("toggle", () => {
+        eventsState.legendOpen = el.open;
+      });
     });
+  }
 
   const facilityFilterState = { search: "", type: "", favoriteOnly: false };
   const rerenderFacilities = () => renderFacilities(data.facilities, facilityFilterState);
 
-  rerender();
+  renderEventsPanel();
   const mapResult = renderMap(data.facilities);
   rerenderFacilities();
-  populateFacilityFilter(data.events);
 
   // 「予定を見る」／「施設をさがす」の画面切り替え。
   // 地図は非表示（display:none）の間に初期化されているため、コンテナサイズが0で
@@ -526,37 +627,69 @@ async function main() {
   document.getElementById("view-tab-events").addEventListener("click", () => switchView("events"));
   document.getElementById("view-tab-facilities").addEventListener("click", () => switchView("facilities"));
 
-  document.querySelectorAll(".tab").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach((b) => b.classList.remove("is-active"));
-      btn.classList.add("is-active");
-      state.range = btn.dataset.range;
-      rerender();
-    });
-  });
-
-  document.querySelectorAll(".mode-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("is-active"));
-      btn.classList.add("is-active");
-      state.mode = btn.dataset.mode;
-      rerender();
-    });
-  });
-
-  document.getElementById("facility-filter").addEventListener("change", (e) => {
-    state.facility = e.target.value;
-    rerender();
-  });
-
-  document.querySelectorAll(".age-filter-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const isActive = btn.classList.contains("is-active");
-      document.querySelectorAll(".age-filter-btn").forEach((b) => b.classList.remove("is-active"));
-      state.age = isActive ? "" : btn.dataset.age;
-      if (!isActive) btn.classList.add("is-active");
-      rerender();
-    });
+  document.getElementById("events-panel-body").addEventListener("click", (e) => {
+    const dateBtn = e.target.closest("[data-select-date]");
+    if (dateBtn) {
+      eventsState.selectedDate = dateBtn.dataset.selectDate;
+      renderEventsPanel();
+      return;
+    }
+    const jumpDateBtn = e.target.closest("[data-jump-date]");
+    if (jumpDateBtn) {
+      eventsState.selectedDate = jumpDateBtn.dataset.jumpDate;
+      eventsState.displayMode = "list";
+      renderEventsPanel();
+      return;
+    }
+    if (e.target.closest("[data-show-calendar]")) {
+      eventsState.displayMode = "calendar";
+      renderEventsPanel();
+      return;
+    }
+    if (e.target.closest("[data-show-list]")) {
+      eventsState.displayMode = "list";
+      renderEventsPanel();
+      return;
+    }
+    if (e.target.closest("[data-today-link]")) {
+      eventsState.selectedDate = null;
+      renderEventsPanel();
+      return;
+    }
+    if (e.target.closest("[data-prev-month]")) {
+      eventsState.monthOffset -= 1;
+      renderEventsPanel();
+      return;
+    }
+    if (e.target.closest("[data-next-month]")) {
+      eventsState.monthOffset += 1;
+      renderEventsPanel();
+      return;
+    }
+    const catBtn = e.target.closest("[data-select-category]");
+    if (catBtn) {
+      const val = catBtn.dataset.selectCategory;
+      eventsState.category = eventsState.category === val ? "" : val;
+      renderEventsPanel();
+      return;
+    }
+    const ageBtn = e.target.closest("[data-select-age]");
+    if (ageBtn) {
+      const val = ageBtn.dataset.selectAge;
+      eventsState.age = eventsState.age === val ? "" : val;
+      renderEventsPanel();
+      return;
+    }
+    if (e.target.closest("[data-clear-filters]")) {
+      eventsState.category = "";
+      eventsState.age = "";
+      renderEventsPanel();
+      return;
+    }
+    const facilityTarget = e.target.closest("[data-facility-id]");
+    if (facilityTarget) {
+      jumpToFacility(facilityTarget.dataset.facilityId);
+    }
   });
 
   document.getElementById("facility-search").addEventListener("input", (e) => {
@@ -611,16 +744,6 @@ async function main() {
     window.setTimeout(() => card.classList.remove("is-highlighted"), 1900);
   }
 
-  document.getElementById("event-list").addEventListener("click", (e) => {
-    if (e.target.closest("[data-goto-facilities]")) {
-      switchView("facilities");
-      return;
-    }
-    const target = e.target.closest("[data-facility-id]");
-    if (!target) return;
-    jumpToFacility(target.dataset.facilityId);
-  });
-
   document.getElementById("facility-groups").addEventListener("click", (e) => {
     const btn = e.target.closest(".favorite-btn");
     if (!btn) return;
@@ -631,7 +754,6 @@ async function main() {
     btn.classList.toggle("is-active", fav);
     btn.setAttribute("aria-label", `${favLabel}（${name}）`);
     btn.innerHTML = `<span class="star" aria-hidden="true">${fav ? "★" : "☆"}</span><span>${favLabel}</span>`;
-    if (state.mode === "favorite") rerender();
     if (facilityFilterState.favoriteOnly) rerenderFacilities();
   });
 
@@ -641,7 +763,7 @@ async function main() {
 }
 
 main().catch((err) => {
-  document.getElementById("event-list").innerHTML =
+  document.getElementById("events-panel-body").innerHTML =
     `<div class="empty-state"><p>データの読み込みに失敗しました。${escapeHtml(String(err))}</p></div>`;
   console.error(err);
 });

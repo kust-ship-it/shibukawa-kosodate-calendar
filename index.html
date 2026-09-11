@@ -29,52 +29,7 @@
 
 <main>
   <section class="view-panel is-active" id="panel-events">
-    <div class="mode-switch" role="group" aria-label="表示の切り替え">
-      <button class="mode-btn is-active" data-mode="all">すべて</button>
-      <button class="mode-btn" data-mode="favorite">お気に入り</button>
-      <button class="mode-btn" data-mode="event">イベント</button>
-    </div>
-    <div class="tabs hw" role="tablist">
-      <button class="tab is-active" data-range="today">今日
-        <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <button class="tab" data-range="week">今週
-        <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <button class="tab" data-range="month">今月
-        <svg class="wavy-underline" viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M2,5 Q15,1 30,4 T58,3" stroke="var(--river-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="filters">
-      <select id="facility-filter" class="facility-filter" aria-label="施設で絞り込む">
-        <option value="">すべての施設</option>
-      </select>
-      <div class="age-filters" role="group" aria-label="対象年齢で絞り込む">
-        <button class="age-filter-btn" data-age="🍼 0歳中心">0歳中心</button>
-        <button class="age-filter-btn" data-age="👶 0〜2歳中心">0〜2歳</button>
-        <button class="age-filter-btn" data-age="🧒 3歳〜就学前中心">3歳〜就学前</button>
-        <button class="age-filter-btn" data-age="🌈 0歳〜就学前まで幅広く">0歳〜就学前（幅広く対象）</button>
-      </div>
-    </div>
-
-    <details class="legend">
-      <summary>見方のご案内</summary>
-      <ul>
-        <li>「子育て支援」：施設が行う活動（特別企画も含む）／「イベント」：主催者・お店からの投稿</li>
-        <li>対象年齢の目安：0歳中心／0〜2歳／3歳〜就学前／0歳〜就学前（幅広く対象）</li>
-        <li>情報源が📄のものはリンクがなく、紙のおたより等が元になっています</li>
-        <li>施設カードの☆をタップすると「お気に入り」に登録できます（この端末だけに保存されます）</li>
-      </ul>
-    </details>
-
-    <div id="event-list" class="event-list">
+    <div id="events-panel-body">
       <p class="loading">読み込み中...</p>
     </div>
   </section>
