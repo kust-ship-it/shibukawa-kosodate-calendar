@@ -48,7 +48,6 @@ body {
 
 .header {
   padding: 1.25rem 1rem 0.75rem;
-  text-align: center;
 }
 .header h1 {
   margin: 0 0 0.25rem;
@@ -83,7 +82,7 @@ main {
   position: relative;
   border: none;
   background: none;
-  padding: 0.6rem 0.1rem;
+  padding: 6px 1px;
   min-height: 44px;
   color: var(--text-muted);
   font-size: 16px;
@@ -155,7 +154,7 @@ main {
   background: var(--river-pale);
   border-radius: 10px;
   padding: 2px 18px;
-  margin-bottom: 0.9rem;
+  margin-bottom: 14px;
   font-size: 14px;
 }
 .legend summary {
@@ -166,18 +165,18 @@ main {
   align-items: center;
 }
 .legend ul {
-  margin: 0.5rem 0 0.25rem;
-  padding-left: 1.1rem;
+  margin: 0 0 10px;
+  padding-left: 20px;
 }
 .legend li {
-  margin-bottom: 0.35rem;
+  margin-bottom: 6px;
 }
 
 .week-strip {
   display: flex;
   justify-content: space-between;
   gap: 2px;
-  margin-bottom: 0.6rem;
+  margin-bottom: 6px;
 }
 .week-day {
   flex: 1;
@@ -188,7 +187,7 @@ main {
   border: none;
   background: transparent;
   border-radius: 10px;
-  padding: 0.35rem 0 0.4rem;
+  padding: 6px 0 7px;
   min-height: 44px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -223,23 +222,23 @@ main {
 .week-strip-links {
   display: flex;
   gap: 1rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 16px;
 }
 
 .day-card {
   background: var(--card-bg);
   border: 1px solid var(--divider);
   border-radius: 12px;
-  padding: 1rem 1.1rem;
-  margin-bottom: 0.75rem;
+  padding: 16px 18px;
+  margin-bottom: 14px;
 }
 .day-card-date {
   font-size: 22px;
   color: var(--river-deep);
-  margin-bottom: 0.4rem;
+  margin-bottom: 10px;
 }
 .event-row {
-  padding: 0.7rem 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--divider);
 }
 .event-row:last-child {
@@ -268,7 +267,7 @@ main {
   font-size: 11px;
   font-weight: 700;
   flex-shrink: 0;
-  padding: 0.15rem 0.6rem;
+  padding: 3px 10px;
   border-radius: 999px;
   color: #ffffff;
 }
@@ -282,14 +281,14 @@ main {
   font-size: 16px;
   display: block;
   margin-top: 0.25rem;
-  margin-left: 1.3rem;
+  margin-left: 20px;
 }
 .event-row-meta {
-  margin-top: 0.35rem;
-  margin-left: 1.3rem;
+  margin-top: 6px;
+  margin-left: 20px;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 8px;
   flex-wrap: wrap;
   font-size: 13px;
   color: var(--text-muted);
@@ -298,13 +297,9 @@ main {
   font-weight: 600;
   color: var(--text);
 }
-.event-place-link {
-  color: var(--river-deep);
-  font-weight: 600;
-}
 
 .upcoming {
-  margin-top: 1.1rem;
+  margin-top: 20px;
 }
 .upcoming h3 {
   font-size: 12px;
@@ -315,7 +310,7 @@ main {
 .upcoming-row {
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
+  gap: 10px;
   padding: 0.5rem 0;
   border-top: 1px solid var(--divider);
 }
@@ -345,17 +340,17 @@ main {
 .filters {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 .chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 6px;
 }
 .category-chip {
   min-height: 44px;
-  padding: 0.2rem 0.85rem;
+  padding: 3px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
@@ -371,7 +366,7 @@ main {
 }
 .age-filter-btn {
   min-height: 44px;
-  padding: 0.4rem 0.8rem;
+  padding: 3px 10px;
   border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
@@ -398,7 +393,7 @@ main {
   cursor: pointer;
   font-size: 18px;
   color: var(--river-deep);
-  padding: 0.25rem 0.6rem;
+  padding: 4px 10px;
   min-height: 44px;
   -webkit-tap-highlight-color: transparent;
 }
@@ -434,7 +429,7 @@ main {
   border-radius: 8px;
   background: var(--card-bg);
   cursor: pointer;
-  padding: 0.3rem 0;
+  padding: 5px 0;
   -webkit-tap-highlight-color: transparent;
 }
 .calendar-cell.is-empty {
@@ -453,6 +448,9 @@ main {
 .calendar-cell-num {
   font-size: 13px;
   color: var(--text);
+}
+.calendar-cell.is-today .calendar-cell-num {
+  font-weight: 700;
 }
 .calendar-cell.is-selected .calendar-cell-num {
   color: var(--river-deep);
@@ -477,47 +475,57 @@ main {
   width: 100%;
   text-align: left;
   cursor: pointer;
-  padding: 0.4rem 0;
+  padding: 6px 0;
   min-height: 44px;
   font-size: 13px;
   font-weight: 600;
   color: var(--river-deep);
   border-bottom: 1px solid var(--divider);
-  margin-bottom: 0.2rem;
+  margin-bottom: 4px;
   -webkit-tap-highlight-color: transparent;
 }
 .search-result-date::after {
   content: " ›";
 }
+.search-result-group .event-row {
+  padding: 10px 0;
+}
 
 .open-facilities {
-  padding-top: 1.25rem;
+  padding: 10px 0;
 }
 .open-facilities-label {
   display: block;
   font-size: 12px;
-  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 0.5rem;
+  margin-bottom: 6px;
 }
 .open-facilities-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 6px;
 }
 .facility-jump-chip {
   appearance: none;
-  border: none;
-  background: none;
+  border: 1px solid var(--divider);
+  background: var(--card-bg);
+  border-radius: 999px;
+  padding: 5px 12px;
   font: inherit;
   font-size: 13px;
-  color: var(--river-deep);
-  font-weight: 600;
+  color: var(--text-muted);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .facility-jump-chip::after {
   content: " ›";
+}
+.event-place-link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--river-deep);
+  font-weight: 600;
 }
 
 .age-badge {
@@ -525,16 +533,16 @@ main {
   background: transparent;
   border: 1px solid var(--divider);
   border-radius: 999px;
-  padding: 0.1rem 0.6rem;
+  padding: 1px 8px;
   font-size: 11.5px;
   color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
 }
 .source-link {
-  color: var(--text-muted);
-  text-decoration: underline;
-  font-weight: 400;
+  color: var(--river-deep);
+  text-decoration: none;
+  font-weight: 600;
 }
 .source-paper {
   color: var(--text-muted);
@@ -551,6 +559,10 @@ main {
   font-size: 14px;
   text-align: center;
   padding: 1.5rem 0;
+}
+
+#facility-groups {
+  margin-top: 16px;
 }
 
 #facility-map {
@@ -578,7 +590,7 @@ main {
 .facility-search-input {
   width: 100%;
   min-height: 44px;
-  padding: 0.5rem 0.6rem;
+  padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--divider);
   background: var(--card-bg);
@@ -588,11 +600,11 @@ main {
 .facility-type-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 6px;
 }
 .facility-type-chip {
   min-height: 40px;
-  padding: 0.4rem 0.8rem;
+  padding: 6px 12px;
   border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
@@ -610,13 +622,14 @@ main {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 6px;
   border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
   font-size: 13px;
   min-height: 40px;
-  padding: 0.3rem 0.8rem;
+  padding: 6px 14px;
+  margin-bottom: 4px;
   color: var(--text-muted);
   -webkit-tap-highlight-color: transparent;
 }
@@ -627,7 +640,7 @@ main {
 }
 
 .facility-type-group {
-  margin-bottom: 1.1rem;
+  margin-bottom: 14px;
 }
 summary.facility-group-summary {
   display: flex;
@@ -636,9 +649,9 @@ summary.facility-group-summary {
   cursor: pointer;
   min-height: 44px;
   list-style: none;
-  padding: 0.5rem 0.9rem;
+  padding: 8px 14px;
   border-radius: 10px;
-  margin: 0 0 0.6rem;
+  margin: 0;
   background: var(--taupe-light);
   -webkit-tap-highlight-color: transparent;
 }
@@ -665,7 +678,7 @@ details[open] > summary.facility-group-summary::after {
   white-space: nowrap;
 }
 .facility-group-body {
-  padding-top: 0.6rem;
+  padding-top: 10px;
 }
 
 .facility-card {
@@ -727,16 +740,16 @@ details[open] > summary.facility-group-summary::after {
   font-size: 14px;
 }
 .address {
-  margin-top: 0.3rem;
+  margin-top: 4px;
   color: var(--text-muted);
   font-size: 13px;
 }
 .programs {
-  margin-top: 0.5rem;
+  margin-top: 6px;
   font-size: 13px;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 6px;
 }
 .program-row .label {
   color: var(--text-muted);
@@ -757,7 +770,7 @@ details[open] > summary.facility-group-summary::after {
   min-height: 44px;
 }
 .source {
-  margin-top: 0.4rem;
+  margin-top: 4px;
   font-size: 13px;
 }
 .source a {
@@ -769,7 +782,7 @@ details[open] > summary.facility-group-summary::after {
   content: " ›";
 }
 .source-note {
-  margin-top: 0.4rem;
+  margin-top: 4px;
   color: var(--text-muted);
   font-size: 13px;
 }
@@ -791,13 +804,14 @@ details[open] > summary.facility-group-summary::after {
 .favorite-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 5px;
+  margin-top: 10px;
   border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
   font-size: 13px;
-  min-height: 30px;
-  padding: 0.25rem 0.6rem;
+  min-height: 40px;
+  padding: 6px 14px;
   color: var(--text-muted);
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
@@ -812,5 +826,5 @@ details[open] > summary.facility-group-summary::after {
   text-align: center;
   color: var(--text-muted);
   font-size: 13px;
-  margin-top: 2rem;
+  margin-top: 24px;
 }
