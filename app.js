@@ -24,10 +24,23 @@ function formatDateLabel(s) {
   return `${d.getMonth() + 1}/${d.getDate()}（${WEEKDAY_JA[d.getDay()]}）`;
 }
 
+// 線画SVGアイコン（絵文字の代わりに使用）。stroke="currentColor"で呼び出し側の文字色を継承する。
+const ICON_EXTERNAL_LINK = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-right:2px;" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+const ICON_MAP_PIN = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-right:3px;" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+const ICON_PHONE = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;margin-right:3px;" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
+
+function starIcon(filled, size) {
+  const common = `width="${size}" height="${size}" viewBox="0 0 24 24" stroke="currentColor" stroke-linejoin="round" style="display:inline-block;vertical-align:-1px;" aria-hidden="true"`;
+  const points = `12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2`;
+  return filled
+    ? `<svg ${common} fill="currentColor" stroke-width="1.5"><polygon points="${points}"/></svg>`
+    : `<svg ${common} fill="none" stroke-width="1.8"><polygon points="${points}"/></svg>`;
+}
+
 function renderSource(source) {
   if (!source) return "";
   if (source.startsWith("http")) {
-    return `<a class="source-link" href="${escapeHtml(source)}" target="_blank" rel="noopener">情報源</a>`;
+    return `<a class="source-link" href="${escapeHtml(source)}" target="_blank" rel="noopener">${ICON_EXTERNAL_LINK}情報源</a>`;
   }
   return `<span class="source-paper">📄 ${escapeHtml(source)}</span>`;
 }
@@ -131,17 +144,16 @@ function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityIds) {
     .sort((a, b) => a.name.localeCompare(b.name, "ja"));
 }
 
-function openFacilitiesRow(list, hasEventsAbove) {
+function openFacilitiesRow(list) {
   if (list.length === 0) return "";
   const chips = list
-    .map((f) => {
-      const group = facilityGroupFor(f.type);
-      const cls = FACILITY_GROUP_BADGE_CLASS[group];
-      return `<button type="button" class="open-facility-chip type-badge ${cls}" data-facility-id="${escapeHtml(f.id)}">${facilityGroupIcon(group)}${escapeHtml(f.name)}</button>`;
-    })
+    .map(
+      (f) =>
+        `<button type="button" class="facility-jump-chip" data-facility-id="${escapeHtml(f.id)}">${escapeHtml(f.name)}</button>`
+    )
     .join("");
   return `
-    <div class="open-facilities${hasEventsAbove ? " has-events-above" : ""}">
+    <div class="open-facilities">
       <span class="open-facilities-label">ほかに開いている場所</span>
       <div class="open-facilities-list">${chips}</div>
     </div>`;
@@ -155,17 +167,11 @@ function eventRow(e) {
   const placeLine = isOfficial
     ? e.facility_name
     : [e.organizer, e.location].filter(Boolean).join(" ／ ");
-  // 施設一覧と同じロジック・同じ配色を再利用し、二重管理を避ける
-  const facilityGroup = isOfficial && e.facility_type ? facilityGroupFor(e.facility_type) : null;
-  const placeClass = facilityGroup
-    ? `type-badge type-badge-inline ${FACILITY_GROUP_BADGE_CLASS[facilityGroup]}`
-    : "event-place";
-  const placeIcon = facilityGroup ? facilityGroupIcon(facilityGroup) : "";
   // 施設が特定できる場合のみ、ラベル自体を「ほかに開いている場所」と同じジャンプ機能のタップ対象にする
-  const isJumpable = Boolean(facilityGroup && e.facility_id);
+  const isJumpable = Boolean(isOfficial && e.facility_id);
   const placeTag = isJumpable
-    ? `<button type="button" class="${placeClass} facility-jump-chip" data-facility-id="${escapeHtml(e.facility_id)}">${placeIcon}${escapeHtml(placeLine)}</button>`
-    : `<span class="${placeClass}">${placeIcon}${escapeHtml(placeLine)}</span>`;
+    ? `<button type="button" class="event-place-link facility-jump-chip" data-facility-id="${escapeHtml(e.facility_id)}">${escapeHtml(placeLine)}</button>`
+    : `<span class="event-place">${escapeHtml(placeLine)}</span>`;
   const hasMeta = Boolean(placeLine || e.source);
   return `
     <div class="event-row">
@@ -195,7 +201,7 @@ function dayCardHtml(dateStr, dayEvents, openFacilities) {
       ${
         isEmpty
           ? emptyMessage("この条件に当てはまる予定はまだありません。")
-          : `${rows}${openFacilitiesRow(openFacilities, Boolean(rows))}`
+          : `${rows}${openFacilitiesRow(openFacilities)}`
       }
     </div>`;
 }
@@ -297,6 +303,24 @@ function monthGridHtml(monthDate, events, effectiveDate, todayIso, matchesCommon
     <div class="calendar-grid">${cells.join("")}</div>`;
 }
 
+// 検索結果（月間モードで絞り込み中）の行は、施設・情報源のメタ情報は表示せず
+// ドット・分類ラベル・年齢・タイトルのみの軽量表示にする
+function searchResultEventRow(e) {
+  const isOfficial = e.badge === "子育て支援";
+  const dotClass = isOfficial ? "dot-official" : "dot-community";
+  const labelClass = isOfficial ? "label-official" : "label-community";
+  const titleColor = isOfficial ? "var(--river-deep)" : "var(--mtn-deep)";
+  return `
+    <div class="event-row">
+      <div class="event-row-main">
+        <span class="event-dot ${dotClass}" aria-hidden="true"></span>
+        <span class="event-label ${labelClass}">${escapeHtml(e.label || e.badge)}</span>
+        ${ageBadge(e.age)}
+      </div>
+      <span class="event-title hw" style="color:${titleColor}">${escapeHtml(e.title)}</span>
+    </div>`;
+}
+
 function searchResultsHtml(monthDate, events, matchesCommon) {
   const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
@@ -312,7 +336,7 @@ function searchResultsHtml(monthDate, events, matchesCommon) {
   return Object.keys(byDate)
     .sort()
     .map((date) => {
-      const rows = byDate[date].map((e) => eventRow(e)).join("");
+      const rows = byDate[date].map((e) => searchResultEventRow(e)).join("");
       return `
         <div class="search-result-group">
           <button type="button" class="search-result-date hw" data-jump-date="${date}">${escapeHtml(formatDateLabel(date))}</button>
@@ -370,10 +394,10 @@ function renderMap(facilities) {
 
 // 私立・公立は「保育園・幼稚園」として統合表示する。
 const FACILITY_GROUP_ORDER = ["公共の遊び場", "保育園・幼稚園", "公民館"];
-const FACILITY_GROUP_BADGE_CLASS = {
-  "公共の遊び場": "type-support",
-  "保育園・幼稚園": "type-childcare",
-  "公民館": "type-community",
+const FACILITY_GROUP_COLOR = {
+  "公共の遊び場": "#4E6260",
+  "保育園・幼稚園": "#6B6248",
+  "公民館": "#7A5A44",
 };
 
 function facilityGroupFor(type) {
@@ -381,17 +405,6 @@ function facilityGroupFor(type) {
   if (type === "公民館") return "公民館";
   // 公共の遊び場（子育て支援センター・キッズランド・だれでも広場等）はここに合流する
   return "公共の遊び場";
-}
-
-// アイコンはTabler Icons outline。stroke="currentColor"でラベルの文字色を継承する。
-const FACILITY_GROUP_ICON = {
-  "公共の遊び場": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l18 0" /><path d="M9 8l1 0" /><path d="M9 12l1 0" /><path d="M9 16l1 0" /><path d="M14 8l1 0" /><path d="M14 12l1 0" /><path d="M14 16l1 0" /><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16" /></svg>`,
-  "保育園・幼稚園": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>`,
-  "公民館": `<svg class="type-badge-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /><path d="M21 21v-2a4 4 0 0 0 -3 -3.85" /></svg>`,
-};
-
-function facilityGroupIcon(group) {
-  return FACILITY_GROUP_ICON[group] || "";
 }
 
 // 「親子ふれあい保育」プログラムを実施している確認が取れなかった施設は、
@@ -427,7 +440,7 @@ function facilityCardHtml(f) {
     .join("");
   const sourceInfo =
     f.source_type === "Web" && f.source_url
-      ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">🔗 詳しくはこちら</a></div>`
+      ? `<div class="source"><a href="${escapeHtml(f.source_url)}" target="_blank" rel="noopener">${ICON_EXTERNAL_LINK} 詳しくはこちら</a></div>`
       : f.source_type === "紙媒体" && !communityTips
         ? `<div class="source-note">Web上に情報はありません。ご存じの方はお知らせください</div>`
         : "";
@@ -442,13 +455,13 @@ function facilityCardHtml(f) {
             ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
           </div>
         </div>
-        ${f.address ? `<div class="address">📍 ${escapeHtml(f.address)}</div>` : ""}
+        ${f.address ? `<div class="address">${ICON_MAP_PIN}${escapeHtml(f.address)}</div>` : ""}
         ${programs ? `<div class="programs">${programs}</div>` : ""}
-        ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">📞 ${f.phone}</a></div>` : ""}
+        ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">${ICON_PHONE}${f.phone}</a></div>` : ""}
         ${sourceInfo}
         ${communityTips}
         <button type="button" class="favorite-btn${fav ? " is-active" : ""}" data-facility="${escapeHtml(f.name)}" aria-label="${favLabel}（${displayName}）">
-          <span class="star" aria-hidden="true">${fav ? "★" : "☆"}</span><span>${favLabel}</span>
+          ${starIcon(fav, 12)}<span>${favLabel}</span>
         </button>
       </div>
     </div>`;
@@ -495,15 +508,13 @@ function renderFacilities(facilities, filterState) {
       }
       if (list.length === 0) return "";
       const cards = list.map((f) => facilityCardHtml(f)).join("");
-      const heading = `
-            <span class="facility-group-label">${facilityGroupIcon(type)}${type}</span>
-            <span class="facility-group-count">${list.length}件</span>`;
+      const heading = `<span class="facility-group-label">${escapeHtml(type)} ${list.length}件</span>`;
 
       // フィルター適用中は該当カテゴリを強制的に開き、結果を隠さない
       const isOpen = hasActiveFilter ? true : Boolean(facilityAccordionOpen[type]);
       return `
         <details class="facility-type-group" data-group="${type}"${isOpen ? " open" : ""}>
-          <summary class="facility-group-summary type-badge ${FACILITY_GROUP_BADGE_CLASS[type]}">${heading}</summary>
+          <summary class="facility-group-summary" style="--group-color:${FACILITY_GROUP_COLOR[type]}">${heading}</summary>
           <div class="facility-group-body">${cards}</div>
         </details>`;
     })
@@ -707,10 +718,13 @@ async function main() {
   });
 
   const favoriteToggle = document.getElementById("facility-favorite-toggle");
+  const favoriteToggleIcon = document.getElementById("facility-favorite-toggle-icon");
+  favoriteToggleIcon.innerHTML = starIcon(false, 13);
   favoriteToggle.addEventListener("click", () => {
     facilityFilterState.favoriteOnly = !facilityFilterState.favoriteOnly;
     favoriteToggle.classList.toggle("is-active", facilityFilterState.favoriteOnly);
     favoriteToggle.setAttribute("aria-pressed", String(facilityFilterState.favoriteOnly));
+    favoriteToggleIcon.innerHTML = starIcon(facilityFilterState.favoriteOnly, 13);
     rerenderFacilities();
   });
 
@@ -753,7 +767,7 @@ async function main() {
     const favLabel = fav ? "お気に入り登録済み" : "お気に入りに追加";
     btn.classList.toggle("is-active", fav);
     btn.setAttribute("aria-label", `${favLabel}（${name}）`);
-    btn.innerHTML = `<span class="star" aria-hidden="true">${fav ? "★" : "☆"}</span><span>${favLabel}</span>`;
+    btn.innerHTML = `${starIcon(fav, 12)}<span>${favLabel}</span>`;
     if (facilityFilterState.favoriteOnly) rerenderFacilities();
   });
 

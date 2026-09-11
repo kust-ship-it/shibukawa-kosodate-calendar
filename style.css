@@ -5,7 +5,6 @@
   --card-bg: #ffffff;
   --text: #3A2F28;
   --text-muted: #6B5D52;
-  --border: #8B7F70;
 
   --river-pale: #EAF2F5;
   --river-deep: #3A5F6E;
@@ -21,10 +20,6 @@
   --taupe-light: #F5F1EC;
   --taupe-mid: #E8DFD2;
   --taupe-dark: #D3C4AE;
-
-  --type-support-text: #4E6260;
-  --type-childcare-text: #6B6248;
-  --type-community-text: #7A5A44;
 
   --primary-support-bg: #2C6478;
   --primary-event-bg: #5C7A3E;
@@ -159,7 +154,7 @@ main {
 .legend {
   background: var(--river-pale);
   border-radius: 10px;
-  padding: 0.5rem 0.9rem;
+  padding: 2px 18px;
   margin-bottom: 0.9rem;
   font-size: 14px;
 }
@@ -294,7 +289,7 @@ main {
   margin-left: 1.3rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.875rem;
   flex-wrap: wrap;
   font-size: 14px;
   color: var(--text-muted);
@@ -302,6 +297,10 @@ main {
 .event-place {
   font-weight: 600;
   color: var(--text);
+}
+.event-place-link {
+  color: var(--river-deep);
+  font-weight: 600;
 }
 
 .upcoming {
@@ -373,7 +372,7 @@ main {
 .age-filter-btn {
   min-height: 44px;
   padding: 0.4rem 0.8rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
   color: var(--text);
@@ -492,31 +491,30 @@ main {
 }
 
 .open-facilities {
-  padding: 0.55rem 0.9rem 0.7rem;
-}
-.open-facilities.has-events-above {
-  border-top: 1px solid var(--divider);
+  padding-top: 1.25rem;
 }
 .open-facilities-label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 .open-facilities-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
-.open-facility-chip,
 .facility-jump-chip {
   appearance: none;
   border: none;
-  font-family: sans-serif;
+  background: none;
+  font: inherit;
+  color: var(--river-deep);
+  font-weight: 600;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.open-facility-chip::after,
 .facility-jump-chip::after {
   content: " ›";
 }
@@ -533,12 +531,9 @@ main {
   flex-shrink: 0;
 }
 .source-link {
-  color: var(--river-deep);
-  text-decoration: none;
-  font-weight: 600;
-}
-.source-link::after {
-  content: " ›";
+  color: var(--text-muted);
+  text-decoration: underline;
+  font-weight: 400;
 }
 .source-paper {
   color: var(--text-muted);
@@ -561,7 +556,7 @@ main {
   height: 260px;
   border-radius: 16px;
   margin-bottom: 1rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--divider);
 }
 .leaflet-popup-content {
   font-size: 14px;
@@ -584,7 +579,7 @@ main {
   min-height: 44px;
   padding: 0.5rem 0.6rem;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--divider);
   background: var(--card-bg);
   color: var(--text);
   font-size: 14px;
@@ -595,9 +590,9 @@ main {
   gap: 0.4rem;
 }
 .facility-type-chip {
-  min-height: 44px;
+  min-height: 40px;
   padding: 0.4rem 0.8rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
   color: var(--text);
@@ -614,18 +609,15 @@ main {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  border: 1px solid var(--border);
+  gap: 0.4rem;
+  border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
   font-size: 14px;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0.3rem 0.8rem;
   color: var(--text-muted);
   -webkit-tap-highlight-color: transparent;
-}
-.facility-favorite-toggle .star {
-  font-size: 1.05rem;
 }
 .facility-favorite-toggle.is-active {
   color: #a6790a;
@@ -636,18 +628,17 @@ main {
 .facility-type-group {
   margin-bottom: 1.1rem;
 }
-/* .type-badgeより詳細度を上げるため要素+クラスで指定 */
 summary.facility-group-summary {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
   width: 100%;
   cursor: pointer;
   min-height: 44px;
   list-style: none;
-  padding: 0.7rem 0.9rem;
+  padding: 0.5rem 0.9rem;
   border-radius: 10px;
   margin: 0 0 0.6rem;
+  background: var(--taupe-light);
   -webkit-tap-highlight-color: transparent;
 }
 summary.facility-group-summary::-webkit-details-marker {
@@ -659,51 +650,26 @@ summary.facility-group-summary::after {
   margin-left: auto;
   font-weight: 700;
   font-size: 16px;
+  color: var(--group-color);
   transform: rotate(0deg);
   transition: transform 0.15s ease;
 }
 details[open] > summary.facility-group-summary::after {
   transform: rotate(90deg);
 }
-.facility-group-count {
-  font-weight: 400;
+.facility-group-label {
+  color: var(--group-color);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 .facility-group-body {
   padding-top: 0.6rem;
 }
-.type-badge {
-  display: inline-block;
-  font-family: sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  background: transparent;
-  border: 1px solid currentColor;
-  margin: 0 0 0.6rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-}
-.type-badge.type-support {
-  color: var(--type-support-text);
-}
-.type-badge.type-childcare {
-  color: var(--type-childcare-text);
-}
-.type-badge.type-community {
-  color: var(--type-community-text);
-}
-.type-badge-inline {
-  margin: 0; /* カレンダー行の中でインライン表示する場合は見出し用の下マージンを打ち消す */
-  font-size: 14px;
-}
-.type-badge-icon {
-  vertical-align: -2px;
-  margin-right: 4px;
-  flex-shrink: 0;
-}
 
 .facility-card {
   margin-bottom: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--divider);
   border-radius: 10px;
 }
 .facility-card.is-highlighted {
@@ -712,7 +678,7 @@ details[open] > summary.facility-group-summary::after {
 @keyframes facility-highlight {
   0% {
     background: var(--card-bg);
-    border-color: var(--border);
+    border-color: var(--divider);
     box-shadow: none;
     transform: scale(1);
   }
@@ -730,7 +696,7 @@ details[open] > summary.facility-group-summary::after {
   }
   100% {
     background: var(--card-bg);
-    border-color: var(--border);
+    border-color: var(--divider);
     box-shadow: none;
     transform: scale(1);
   }
@@ -824,19 +790,16 @@ details[open] > summary.facility-group-summary::after {
 .favorite-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  border: 1px solid var(--border);
+  gap: 0.25rem;
+  border: 1px solid var(--divider);
   border-radius: 999px;
   background: var(--card-bg);
-  font-size: 14px;
-  min-height: 44px;
-  padding: 0.3rem 0.8rem;
+  font-size: 11.5px;
+  min-height: 30px;
+  padding: 0.25rem 0.6rem;
   color: var(--text-muted);
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
-}
-.favorite-btn .star {
-  font-size: 1.05rem;
 }
 .favorite-btn.is-active {
   color: #a6790a;
