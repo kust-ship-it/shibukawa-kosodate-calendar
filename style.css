@@ -809,3 +809,110 @@ details[open] > summary.facility-group-summary::after {
   font-size: 13px;
   margin-top: 24px;
 }
+.footer-links {
+  margin-top: 0.4rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+.error-page-code {
+  position: relative;
+  display: inline-block;
+  font-size: 64px;
+  color: var(--river-deep);
+  margin-bottom: 20px;
+}
+.error-page-code .wavy-underline {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  bottom: 2px;
+  width: calc(100% + 12px);
+  height: 8px;
+}
+.error-page-text {
+  font-size: 15px;
+  margin: 0 0 28px;
+  color: var(--text);
+}
+.error-page-link {
+  display: inline-block;
+  min-height: 44px;
+  line-height: 44px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--river-deep);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.legal-updated {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+.legal-content h2 {
+  font-family: 'Yomogi', cursive;
+  font-weight: 400;
+  font-size: 26px;
+  margin: 0 0 20px;
+  color: var(--text);
+}
+.legal-content h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 28px 0 10px;
+  color: var(--river-deep);
+}
+.legal-content p {
+  font-size: 14px;
+  margin: 0 0 20px;
+  color: var(--text);
+}
+.legal-content a {
+  color: var(--river-deep);
+}
+.legal-table {
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+.legal-table-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+}
+.legal-table-row:last-child {
+  border-bottom: none;
+}
+.legal-table-label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.legal-contact-pending {
+  background: var(--river-pale);
+  border-radius: 10px;
+  padding: 18px 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+}

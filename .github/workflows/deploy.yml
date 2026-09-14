@@ -40,6 +40,8 @@ jobs:
       # NotionのイベントDB・施設マスタが誤操作等で失われた場合の復元用に、
       # 取得したdata.jsonを1日1回リポジトリへ残しておく（data.json自体はdist生成物なので.gitignore対象）。
       # [skip ci]を付けてpushしないと、この後のgit pushがpushトリガーで自分自身を再起動させてしまう。
+      # 手動デプロイと定期実行が重なる等で他のpushとレースした場合に備え、失敗時は
+      # pull --rebaseしてから1回だけ再試行する。
       - name: Backup data.json snapshot
         run: |
           mkdir -p backups
@@ -47,12 +49,12 @@ jobs:
           cp data.json "backups/data-${DATE}.json"
           git -c user.name="kust-ship-it" -c user.email="kust-ship-it@users.noreply.github.com" add backups/
           git diff --staged --quiet || git -c user.name="kust-ship-it" -c user.email="kust-ship-it@users.noreply.github.com" commit -m "backup: data.json snapshot ${DATE} [skip ci]"
-          git push
+          git push || (git -c user.name="kust-ship-it" -c user.email="kust-ship-it@users.noreply.github.com" pull --rebase origin main && git push)
 
       - name: Prepare dist
         run: |
           mkdir -p dist
-          cp index.html style.css app.js data.json CNAME sitemap.xml robots.txt dist/
+          cp index.html style.css app.js data.json CNAME sitemap.xml robots.txt 404.html legal.html dist/
           cp -r assets dist/assets
 
       - uses: actions/upload-pages-artifact@v3
