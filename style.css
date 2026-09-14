@@ -898,6 +898,7 @@ details[open] > summary.facility-group-summary::after {
   border-bottom: 2px solid transparent;
   padding: 10px 2px;
   cursor: pointer;
+  font-family: "Hiragino Sans", "Noto Sans JP", sans-serif;
   font-size: 14px;
   font-weight: 400;
   color: var(--text-muted);
