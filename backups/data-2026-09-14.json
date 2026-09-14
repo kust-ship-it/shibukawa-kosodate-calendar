@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T23:17:03.591711+09:00",
+  "generated_at": "2026-09-14T23:25:01.485300+09:00",
   "events": [
     {
       "title": "子育てサロンせいぶ（渋川西部公民館）：初めての靴えらび",
@@ -4713,8 +4713,8 @@
       "koala_day": "",
       "kaikan_day": "木〜火（毎週水曜休み、年末年始休み）",
       "kaikan_time": "10:00-16:00",
-      "source_url": "https://www.city.shibukawa.lg.jp/kosodate-site/kosodate/000437/000446/000447/p015025.html",
-      "source_type": "",
+      "source_url": "https://shibukawa-csw.or.jp/pages/29/",
+      "source_type": "Web",
       "lat": 36.528774,
       "lng": 139.025757,
       "display_order": 3,
@@ -4737,8 +4737,8 @@
       "koala_day": "",
       "kaikan_day": "月〜金（土日祭日・お盆期間・年末年始休み）",
       "kaikan_time": "9:30-17:30",
-      "source_url": "https://www.city.shibukawa.lg.jp/kosodate-site/kosodate/000437/000446/000447/p015024.html",
-      "source_type": "",
+      "source_url": "https://wakaba-jidoukan.jp/",
+      "source_type": "Web",
       "lat": 36.511509,
       "lng": 138.977951,
       "display_order": 4,
@@ -4762,7 +4762,7 @@
       "kaikan_day": "火〜日",
       "kaikan_time": "9:00-11:30、13:00-16:00（相談等は17:00まで受付）",
       "source_url": "https://www.city.shibukawa.lg.jp/kosodate-site/kosodate/000459/000461/p015021.html",
-      "source_type": "",
+      "source_type": "Web",
       "lat": 36.496037,
       "lng": 138.978714,
       "display_order": 2,
