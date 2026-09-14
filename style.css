@@ -959,11 +959,6 @@ details[open] > summary.facility-group-summary::after {
   color: var(--text-muted);
   font-weight: 600;
 }
-.legal-note {
-  font-size: 13px;
-  color: #8A7A6C;
-  margin: 16px 0 0;
-}
 .legal-contact-intro {
   margin: 0 0 24px;
 }
