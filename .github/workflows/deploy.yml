@@ -38,7 +38,7 @@ jobs:
       - name: Prepare dist
         run: |
           mkdir -p dist
-          cp index.html style.css app.js data.json dist/
+          cp index.html style.css app.js data.json CNAME dist/
 
       - uses: actions/upload-pages-artifact@v3
         with:
