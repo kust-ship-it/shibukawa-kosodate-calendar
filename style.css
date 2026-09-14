@@ -878,7 +878,8 @@ details[open] > summary.facility-group-summary::after {
   padding: 48px 24px 96px;
 }
 .legal-page-brand {
-  margin-bottom: 32px;
+  padding: 20px 0 12px;
+  margin-bottom: 12px;
 }
 .legal-page-brand a {
   font-size: 24px;
