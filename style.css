@@ -969,3 +969,16 @@ details[open] > summary.facility-group-summary::after {
   font-size: 14px;
   color: var(--text-muted);
 }
+.legal-back-link {
+  display: inline-block;
+  margin-top: 40px;
+  min-height: 44px;
+  line-height: 44px;
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--river-deep);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
