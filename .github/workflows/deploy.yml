@@ -53,6 +53,7 @@ jobs:
         run: |
           mkdir -p dist
           cp index.html style.css app.js data.json CNAME sitemap.xml robots.txt dist/
+          cp -r assets dist/assets
 
       - uses: actions/upload-pages-artifact@v3
         with:
