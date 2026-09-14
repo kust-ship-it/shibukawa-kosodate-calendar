@@ -561,21 +561,6 @@ main {
   margin-top: 16px;
 }
 
-#facility-map {
-  height: 260px;
-  border-radius: 16px;
-  margin-bottom: 1rem;
-  border: 1px solid var(--divider);
-}
-.leaflet-popup-content {
-  font-size: 14px;
-  line-height: 1.6;
-}
-.leaflet-popup-content b {
-  display: block;
-  margin-bottom: 0.2rem;
-  color: var(--river-deep);
-}
 
 .facility-search-controls {
   display: flex;

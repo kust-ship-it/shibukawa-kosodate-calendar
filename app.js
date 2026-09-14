@@ -351,47 +351,6 @@ function programRow(label, day, time) {
   return `<div class="program-row"><span class="label">${label}</span>${escapeHtml(day)} ${escapeHtml(time)}</div>`;
 }
 
-const TYPE_COLOR = {
-  "私立": "#e8836b",
-  "公立": "#4a90a4",
-  "公民館": "#f0a500",
-  "公共の遊び場": "#8e44ad",
-};
-
-function renderMap(facilities) {
-  const el = document.getElementById("facility-map");
-  const points = facilities.filter((f) => typeof f.lat === "number" && typeof f.lng === "number");
-  if (points.length === 0 || typeof L === "undefined") {
-    el.style.display = "none";
-    return null;
-  }
-
-  const map = L.map(el, { scrollWheelZoom: false });
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  }).addTo(map);
-
-  const markers = points.map((f) => {
-    const color = TYPE_COLOR[f.type] || "#888";
-    const marker = L.circleMarker([f.lat, f.lng], {
-      radius: 8,
-      color,
-      fillColor: color,
-      fillOpacity: 0.85,
-      weight: 2,
-    }).addTo(map);
-    const phone = f.phone ? `<br>📞 ${escapeHtml(f.phone)}` : "";
-    marker.bindPopup(`<b>${escapeHtml(f.name)}</b>${escapeHtml(f.type || "")}${phone}`);
-    return marker;
-  });
-
-  const group = L.featureGroup(markers);
-  const bounds = group.getBounds().pad(0.15);
-  map.fitBounds(bounds);
-  return { map, bounds };
-}
-
 // 私立・公立は「保育園・幼稚園」として統合表示する。
 const FACILITY_GROUP_ORDER = ["公共の遊び場", "保育園・幼稚園", "公民館"];
 const FACILITY_GROUP_COLOR = {
@@ -639,25 +598,15 @@ async function main() {
   const rerenderFacilities = () => renderFacilities(data.facilities, facilityFilterState);
 
   renderEventsPanel();
-  const mapResult = renderMap(data.facilities);
   rerenderFacilities();
 
   // 「予定を見る」／「施設をさがす」の画面切り替え。
-  // 地図は非表示（display:none）の間に初期化されているため、コンテナサイズが0で
-  // fitBoundsのズーム計算が狂い、世界地図表示になってしまう。施設タブを開くたびに
-  // invalidateSize()でサイズを再認識させたうえで、同じ範囲へfitBoundsをやり直す。
   function applyView(name) {
     currentView = name;
     document.getElementById("view-tab-events").classList.toggle("is-active", name === "events");
     document.getElementById("view-tab-facilities").classList.toggle("is-active", name === "facilities");
     document.getElementById("panel-events").classList.toggle("is-active", name === "events");
     document.getElementById("panel-facilities").classList.toggle("is-active", name === "facilities");
-    if (name === "facilities" && mapResult) {
-      requestAnimationFrame(() => {
-        mapResult.map.invalidateSize();
-        mapResult.map.fitBounds(mapResult.bounds);
-      });
-    }
   }
   function changeView(name) {
     applyView(name);
