@@ -542,6 +542,29 @@ async function main() {
     age: "",
     legendOpen: false,
   };
+  let currentView = "events";
+
+  // ブラウザの戻る/進むで主要な画面状態を復元できるよう、history.stateに積んでおく。
+  // カテゴリ・年齢フィルターや検索・お気に入りは対象外（頻繁に変わるため履歴を汚さない）。
+  function historyStateSnapshot() {
+    return {
+      view: currentView,
+      displayMode: eventsState.displayMode,
+      selectedDate: eventsState.selectedDate,
+      monthOffset: eventsState.monthOffset,
+    };
+  }
+  function pushHistoryState() {
+    history.pushState(historyStateSnapshot(), "", location.pathname + location.search);
+  }
+  function applyHistoryState(state) {
+    if (!state) return;
+    eventsState.displayMode = state.displayMode || "list";
+    eventsState.selectedDate = state.selectedDate || null;
+    eventsState.monthOffset = state.monthOffset || 0;
+    applyView(state.view || "events");
+    renderEventsPanel();
+  }
 
   function matchesCommon(e) {
     if (eventsState.category && e.badge !== eventsState.category) return false;
@@ -623,7 +646,8 @@ async function main() {
   // 地図は非表示（display:none）の間に初期化されているため、コンテナサイズが0で
   // fitBoundsのズーム計算が狂い、世界地図表示になってしまう。施設タブを開くたびに
   // invalidateSize()でサイズを再認識させたうえで、同じ範囲へfitBoundsをやり直す。
-  function switchView(name) {
+  function applyView(name) {
+    currentView = name;
     document.getElementById("view-tab-events").classList.toggle("is-active", name === "events");
     document.getElementById("view-tab-facilities").classList.toggle("is-active", name === "facilities");
     document.getElementById("panel-events").classList.toggle("is-active", name === "events");
@@ -635,14 +659,24 @@ async function main() {
       });
     }
   }
-  document.getElementById("view-tab-events").addEventListener("click", () => switchView("events"));
-  document.getElementById("view-tab-facilities").addEventListener("click", () => switchView("facilities"));
+  function changeView(name) {
+    applyView(name);
+    pushHistoryState();
+  }
+  document.getElementById("view-tab-events").addEventListener("click", () => changeView("events"));
+  document.getElementById("view-tab-facilities").addEventListener("click", () => changeView("facilities"));
+
+  history.replaceState(historyStateSnapshot(), "", location.pathname + location.search);
+  window.addEventListener("popstate", (e) => {
+    applyHistoryState(e.state);
+  });
 
   document.getElementById("events-panel-body").addEventListener("click", (e) => {
     const dateBtn = e.target.closest("[data-select-date]");
     if (dateBtn) {
       eventsState.selectedDate = dateBtn.dataset.selectDate;
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     const jumpDateBtn = e.target.closest("[data-jump-date]");
@@ -650,31 +684,37 @@ async function main() {
       eventsState.selectedDate = jumpDateBtn.dataset.jumpDate;
       eventsState.displayMode = "list";
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     if (e.target.closest("[data-show-calendar]")) {
       eventsState.displayMode = "calendar";
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     if (e.target.closest("[data-show-list]")) {
       eventsState.displayMode = "list";
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     if (e.target.closest("[data-today-link]")) {
       eventsState.selectedDate = null;
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     if (e.target.closest("[data-prev-month]")) {
       eventsState.monthOffset -= 1;
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     if (e.target.closest("[data-next-month]")) {
       eventsState.monthOffset += 1;
       renderEventsPanel();
+      pushHistoryState();
       return;
     }
     const catBtn = e.target.closest("[data-select-category]");
@@ -735,7 +775,7 @@ async function main() {
     const facility = data.facilities.find((f) => f.id === facilityId);
     if (!facility) return;
 
-    switchView("facilities");
+    changeView("facilities");
 
     facilityFilterState.search = "";
     document.getElementById("facility-search").value = "";
