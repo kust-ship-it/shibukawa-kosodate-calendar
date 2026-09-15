@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T17:53:53.662972+09:00",
+  "generated_at": "2026-09-15T18:01:12.686660+09:00",
   "events": [
     {
       "title": "子育てサロンせいぶ（渋川西部公民館）：初めての靴えらび",
@@ -4721,6 +4721,8 @@
       "holiday_open": true,
       "holiday_monday_shift": false,
       "year_end_closed": true,
+      "temp_closure_start": "2026-07-01",
+      "temp_closure_end": "2026-09-30",
       "community_tips": []
     },
     {
@@ -4748,6 +4750,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": true,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4775,6 +4779,8 @@
       "holiday_open": true,
       "holiday_monday_shift": true,
       "year_end_closed": true,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4802,6 +4808,8 @@
       "holiday_open": true,
       "holiday_monday_shift": false,
       "year_end_closed": true,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4829,6 +4837,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4856,6 +4866,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4883,6 +4895,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4910,6 +4924,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4937,6 +4953,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4964,6 +4982,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -4991,6 +5011,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5018,6 +5040,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5045,6 +5069,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5072,6 +5098,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5099,6 +5127,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5126,6 +5156,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5153,6 +5185,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5180,6 +5214,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5207,6 +5243,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5234,6 +5272,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5261,6 +5301,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5288,6 +5330,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5315,6 +5359,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5342,6 +5388,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5369,6 +5417,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5396,6 +5446,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5423,6 +5475,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5450,6 +5504,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5477,6 +5533,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5504,6 +5562,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     },
     {
@@ -5531,6 +5591,8 @@
       "holiday_open": false,
       "holiday_monday_shift": false,
       "year_end_closed": false,
+      "temp_closure_start": null,
+      "temp_closure_end": null,
       "community_tips": []
     }
   ],
