@@ -206,6 +206,9 @@ def build_facilities(client: Client) -> list[dict]:
                 "lat": _number(props, "緯度"),
                 "lng": _number(props, "経度"),
                 "display_order": _number(props, "表示順"),
+                "holiday_open": _checkbox(props, "祝日も開館"),
+                "holiday_monday_shift": _checkbox(props, "月曜祝日翌日休み"),
+                "year_end_closed": _checkbox(props, "年末年始休み"),
             }
         )
     facilities.sort(key=lambda f: (f["type"] or "", f["name"]))

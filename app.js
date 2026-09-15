@@ -136,16 +136,46 @@ function facilityOpenWeekdays(f) {
   return days;
 }
 
+// 年末年始（12/29〜1/3）は国民の祝日ではなく市の慣例休館のため、祝日データとは別に日付計算する。
+function isYearEndPeriod(d) {
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  return (m === 12 && day >= 29) || (m === 1 && day <= 3);
+}
+
+// 施設マスタの曜日データ（例:「火〜日」）だけでは祝日の例外を表現できないため、
+// 施設ごとの祝日フラグで補正する。
+// - holiday_open: 祝日も曜日パターン通りに開館（施設マスタで個別に確認済みのもののみtrue。
+//   デフォルトは「休館」＝安全側）
+// - holiday_monday_shift: キッズランド専用の特例。月曜が祝日ならその月曜は開館し、
+//   代わりに翌火曜が振替休館になる
+// - year_end_closed: 12/29〜1/3は曜日パターンに関わらず休館
+function isFacilityOpenOn(f, dateStr, weekday, isHoliday, holidaySet) {
+  if (f.year_end_closed && isYearEndPeriod(dateFromStr(dateStr))) return false;
+
+  let open = facilityOpenWeekdays(f).has(weekday);
+  if (f.holiday_monday_shift) {
+    if (weekday === "月") {
+      open = isHoliday; // 通常は月曜休みだが、祝日の月曜だけ特別開館
+    } else if (weekday === "火") {
+      const prev = dateFromStr(dateStr);
+      prev.setDate(prev.getDate() - 1);
+      if (holidaySet && holidaySet.has(toIsoDate(prev))) open = false; // 前日(月曜)が祝日だった振替休館
+    }
+  }
+  if (!open) return false;
+  if (isHoliday && !f.holiday_open) return false;
+  return true;
+}
+
 // その日すでにカード表示されている施設は「ほかに開いている場所」に重複表示しない。
 // カレンダー側イベントの「施設」relation IDと施設マスタのページIDを直接比較する
 // （施設名テキストの部分一致には頼らない）。
-// 施設マスタの曜日データは「月〜金」等の通常パターンのみで祝日の例外を持たないため、
-// 祝日は一律で「閉まっている」とみなす（休館情報が施設ごとに無いための単純化）。
 function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityIds, holidaySet) {
-  if (holidaySet && holidaySet.has(dateStr)) return [];
   const weekday = WEEKDAY_JA[dateFromStr(dateStr).getDay()];
+  const isHoliday = Boolean(holidaySet && holidaySet.has(dateStr));
   return facilities
-    .filter((f) => facilityOpenWeekdays(f).has(weekday))
+    .filter((f) => isFacilityOpenOn(f, dateStr, weekday, isHoliday, holidaySet))
     .filter((f) => !dayOfficialFacilityIds.has(f.id))
     .sort((a, b) => a.name.localeCompare(b.name, "ja"));
 }
