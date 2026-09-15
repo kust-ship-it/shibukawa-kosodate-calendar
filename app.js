@@ -139,7 +139,10 @@ function facilityOpenWeekdays(f) {
 // その日すでにカード表示されている施設は「ほかに開いている場所」に重複表示しない。
 // カレンダー側イベントの「施設」relation IDと施設マスタのページIDを直接比較する
 // （施設名テキストの部分一致には頼らない）。
-function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityIds) {
+// 施設マスタの曜日データは「月〜金」等の通常パターンのみで祝日の例外を持たないため、
+// 祝日は一律で「閉まっている」とみなす（休館情報が施設ごとに無いための単純化）。
+function facilitiesOpenOn(dateStr, facilities, dayOfficialFacilityIds, holidaySet) {
+  if (holidaySet && holidaySet.has(dateStr)) return [];
   const weekday = WEEKDAY_JA[dateFromStr(dateStr).getDay()];
   return facilities
     .filter((f) => facilityOpenWeekdays(f).has(weekday))
@@ -495,6 +498,7 @@ function renderFacilities(facilities, filterState) {
 async function main() {
   const res = await fetch("data.json", { cache: "no-store" });
   const data = await res.json();
+  const holidaySet = new Set((data.holidays || []).map((h) => h.date));
 
   const eventsState = {
     displayMode: "list", // "list" | "calendar"
@@ -553,7 +557,7 @@ async function main() {
         dayEvents.filter((e) => e.badge === "子育て支援" && e.facility_id).map((e) => e.facility_id)
       );
       // 絞り込み中は「ほかに開いている場所」を出さない
-      const openFacilities = hasActiveFilter ? [] : facilitiesOpenOn(dateStr, data.facilities, officialIds);
+      const openFacilities = hasActiveFilter ? [] : facilitiesOpenOn(dateStr, data.facilities, officialIds, holidaySet);
       return dayCardHtml(dateStr, dayEvents, openFacilities);
     };
 

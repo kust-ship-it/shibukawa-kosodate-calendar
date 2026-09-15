@@ -10,6 +10,7 @@ import os
 import sys
 from datetime import datetime, timezone, timedelta
 
+import jpholiday
 from dotenv import load_dotenv
 from notion_client import Client
 
@@ -233,6 +234,20 @@ def build_facility_tips(client: Client) -> dict[str, list[dict]]:
     return tips
 
 
+def build_holidays() -> list[dict]:
+    """日本の祝日一覧（前年〜翌々年）。施設の開館判定（曜日ベース）から祝日を
+    除外するため、また将来カレンダー表示に祝日を出す際にも使えるよう、
+    日付だけでなく名称も含めて書き出す。
+    """
+    this_year = datetime.now(JST).year
+    holidays: list[dict] = []
+    for year in range(this_year - 1, this_year + 3):
+        for date_, name in jpholiday.year_holidays(year):
+            holidays.append({"date": date_.isoformat(), "name": name})
+    holidays.sort(key=lambda h: h["date"])
+    return holidays
+
+
 def main() -> None:
     client = _client()
     print("施設マスタを取得中...")
@@ -254,10 +269,14 @@ def main() -> None:
         f["community_tips"] = tips.get(f["name"], [])
     print(f"  {sum(len(v) for v in tips.values())}件")
 
+    holidays = build_holidays()
+    print(f"祝日データ: {len(holidays)}件")
+
     data = {
         "generated_at": datetime.now(JST).isoformat(),
         "events": events,
         "facilities": facilities,
+        "holidays": holidays,
     }
 
     out_path = os.path.join(os.path.dirname(__file__), "data.json")
