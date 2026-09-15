@@ -46,10 +46,16 @@ body {
   font-weight: 400;
 }
 
-.header {
+.page-container {
   max-width: 640px;
   margin: 0 auto;
-  padding: 1.25rem 1rem 0.75rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.header {
+  padding-top: 1.25rem;
+  padding-bottom: 0.75rem;
 }
 .header h1 {
   margin: 0;
@@ -64,9 +70,8 @@ body {
 }
 
 main {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .section {
@@ -831,7 +836,8 @@ details[open] > summary.facility-group-summary::after {
 .error-page-inner {
   max-width: 420px;
   text-align: center;
-  padding: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
 }
 .error-page-code {
   position: relative;
@@ -874,9 +880,8 @@ details[open] > summary.facility-group-summary::after {
   min-height: 100vh;
 }
 .legal-page-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 20px 24px 96px;
+  padding-top: 20px;
+  padding-bottom: 96px;
 }
 .legal-page-brand {
   margin-bottom: 20px;
