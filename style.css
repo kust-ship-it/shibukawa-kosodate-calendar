@@ -51,10 +51,8 @@ body {
   margin: 0 auto;
   padding: 1.25rem 1rem 0.75rem;
 }
-.header h1 {
+.header .site-brand {
   margin: 0 0 0.25rem;
-  font-size: 22px;
-  color: var(--river-deep);
 }
 .header .lead {
   margin: 0;
@@ -880,10 +878,13 @@ details[open] > summary.facility-group-summary::after {
 .legal-page-brand {
   margin-bottom: 20px;
 }
-.legal-page-brand a {
-  font-size: 24px;
+.site-brand {
+  font-family: 'Yomogi', cursive;
+  font-weight: 400;
+  font-size: 22px;
   color: var(--river-deep);
   text-decoration: none;
+  display: inline-block;
 }
 .legal-tabs {
   display: flex;
