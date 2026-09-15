@@ -95,6 +95,16 @@ def _number(props: dict, name: str):
     return prop["number"]
 
 
+def _date_range(props: dict, name: str) -> tuple[str | None, str | None]:
+    prop = props.get(name)
+    if not prop or prop["type"] != "date" or not prop["date"]:
+        return None, None
+    date = prop["date"]
+    start = date.get("start")
+    end = date.get("end") or start
+    return (start[:10] if start else None), (end[:10] if end else None)
+
+
 def build_events(client: Client, facility_types_by_id: dict[str, str] | None = None) -> list[dict]:
     # 施設名（テキスト）は「施設名（子育て支援名称）」のような合成表記のことが多く
     # 施設マスタのタイトルと文字列一致しないため、「施設」relationのページIDで引く。
@@ -183,6 +193,7 @@ def build_facilities(client: Client) -> list[dict]:
     facilities = []
     for page in pages:
         props = page["properties"]
+        temp_closure_start, temp_closure_end = _date_range(props, "臨時休館期間")
         facilities.append(
             {
                 "id": page["id"],
@@ -209,6 +220,8 @@ def build_facilities(client: Client) -> list[dict]:
                 "holiday_open": _checkbox(props, "祝日も開館"),
                 "holiday_monday_shift": _checkbox(props, "月曜祝日翌日休み"),
                 "year_end_closed": _checkbox(props, "年末年始休み"),
+                "temp_closure_start": temp_closure_start,
+                "temp_closure_end": temp_closure_end,
             }
         )
     facilities.sort(key=lambda f: (f["type"] or "", f["name"]))

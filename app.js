@@ -150,7 +150,15 @@ function isYearEndPeriod(d) {
 // - holiday_monday_shift: キッズランド専用の特例。月曜が祝日ならその月曜は開館し、
 //   代わりに翌火曜が振替休館になる
 // - year_end_closed: 12/29〜1/3は曜日パターンに関わらず休館
+// - temp_closure_start/end: 設備故障等による期間限定の臨時休館（例：だれでも広場の
+//   空調故障による2026年7〜9月休館）。設定されていれば曜日パターンより優先して休館扱いにする
+function isInTempClosure(f, dateStr) {
+  if (!f.temp_closure_start) return false;
+  return dateStr >= f.temp_closure_start && dateStr <= (f.temp_closure_end || f.temp_closure_start);
+}
+
 function isFacilityOpenOn(f, dateStr, weekday, isHoliday, holidaySet) {
+  if (isInTempClosure(f, dateStr)) return false;
   if (f.year_end_closed && isYearEndPeriod(dateFromStr(dateStr))) return false;
 
   let open = facilityOpenWeekdays(f).has(weekday);
@@ -441,6 +449,9 @@ function facilityCardHtml(f) {
         : "";
   const fav = isFavorite(f.name);
   const favLabel = fav ? "お気に入り登録済み" : "お気に入りに追加";
+  const closureNotice = isInTempClosure(f, todayStr())
+    ? `<div class="closure-notice">⚠️ 臨時休館中${f.temp_closure_end ? `（${escapeHtml(formatDateLabel(f.temp_closure_end))}まで）` : ""}</div>`
+    : "";
   return `
     <div class="facility-card" data-facility-name="${escapeHtml(f.name)}">
       <div class="facility-card-body">
@@ -450,6 +461,7 @@ function facilityCardHtml(f) {
             ${subNames ? `<span class="support-name">${subNames}</span>` : ""}
           </div>
         </div>
+        ${closureNotice}
         ${f.address ? `<div class="address">${ICON_MAP_PIN}${escapeHtml(f.address)}</div>` : ""}
         ${programs ? `<div class="programs">${programs}</div>` : ""}
         ${f.phone ? `<div class="phone"><a href="tel:${f.phone.replace(/-/g, "")}">${ICON_PHONE}${f.phone}</a></div>` : ""}

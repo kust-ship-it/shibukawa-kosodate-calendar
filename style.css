@@ -770,6 +770,16 @@ details[open] > summary.facility-group-summary::after {
   color: var(--text-muted);
   font-size: 13px;
 }
+.closure-notice {
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: #fff8e8;
+  color: #a6790a;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+}
 .community-tip {
   margin-top: 0.4rem;
   padding: 0.5rem 0.6rem;
