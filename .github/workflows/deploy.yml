@@ -40,16 +40,32 @@ jobs:
       # NotionのイベントDB・施設マスタが誤操作等で失われた場合の復元用に、
       # 取得したdata.jsonを1日1回リポジトリへ残しておく（data.json自体はdist生成物なので.gitignore対象）。
       # [skip ci]を付けてpushしないと、この後のgit pushがpushトリガーで自分自身を再起動させてしまう。
-      # 手動デプロイと定期実行が重なる等で他のpushとレースした場合に備え、失敗時は
-      # pull --rebaseしてから1回だけ再試行する。
+      # 手動デプロイと定期実行が重なる等で他のpushとレースした場合、同じ日付のバックアップ
+      # ファイル同士でpull --rebaseしても内容衝突（コンフリクト）になり得るため、失敗時は
+      # rebaseで解決しようとせず、origin/mainへreset --hardしてからバックアップを作り直して
+      # 再pushする（data.json自体はgit管理外なのでresetの影響を受けない）。最大3回試行。
       - name: Backup data.json snapshot
         run: |
+          GIT="git -c user.name=kust-ship-it -c user.email=kust-ship-it@users.noreply.github.com"
           mkdir -p backups
           DATE=$(TZ=Asia/Tokyo date +%Y-%m-%d)
           cp data.json "backups/data-${DATE}.json"
-          git -c user.name="kust-ship-it" -c user.email="kust-ship-it@users.noreply.github.com" add backups/
-          git diff --staged --quiet || git -c user.name="kust-ship-it" -c user.email="kust-ship-it@users.noreply.github.com" commit -m "backup: data.json snapshot ${DATE} [skip ci]"
-          git push || (git -c user.name="kust-ship-it" -c user.email="kust-ship-it@users.noreply.github.com" pull --rebase origin main && git push)
+          $GIT add backups/
+          if ! $GIT diff --staged --quiet; then
+            $GIT commit -m "backup: data.json snapshot ${DATE} [skip ci]"
+            for i in 1 2 3; do
+              if $GIT push; then
+                break
+              fi
+              echo "push failed (attempt $i), resetting to origin/main and retrying"
+              git fetch origin main
+              git reset --hard origin/main
+              mkdir -p backups
+              cp data.json "backups/data-${DATE}.json"
+              $GIT add backups/
+              $GIT diff --staged --quiet || $GIT commit -m "backup: data.json snapshot ${DATE} [skip ci]"
+            done
+          fi
 
       - name: Prepare dist
         run: |
