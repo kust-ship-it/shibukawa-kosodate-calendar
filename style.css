@@ -81,9 +81,6 @@ main {
 .view-switch {
   display: flex;
   gap: 24px;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 0 1rem;
   border-bottom: 1px solid var(--divider);
 }
 .view-tab {
